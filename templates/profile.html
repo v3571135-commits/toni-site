@@ -204,20 +204,33 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
         };
 
         function register() {
+          function register() {
             var name = document.getElementById('reg-name').value.trim();
             var id = document.getElementById('reg-id').value.trim();
-            var avatar = currentAvatar;
+            var avatar = window.currentAvatar || '👤';
 
             if (name === "" || id === "") {
                 alert("Пожалуйста, заполни оба поля!");
                 return;
             }
 
-            localStorage.setItem('toni_name', name);
-            localStorage.setItem('toni_id', id);
-            localStorage.setItem('toni_avatar', avatar);
-            
-            showProfile(name, id, avatar);
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: name, username: id, avatar: avatar})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    localStorage.setItem('toni_user_id', data.user_id);
+                    localStorage.setItem('toni_name', name);
+                    localStorage.setItem('toni_id', id);
+                    localStorage.setItem('toni_avatar', avatar);
+                    showProfile(name, id, avatar);
+                }
+            });
         }
 
         function showProfile(name, id, avatar) {
