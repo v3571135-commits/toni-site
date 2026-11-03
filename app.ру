@@ -73,6 +73,22 @@ def messages():
     else:
         sender = request.args.get('sender_id')
         receiver = request.args.get('receiver_id')
+        # Ищем сообщения в обе стороны (от меня к тебе и от тебя ко мне)
+        msgs = Message.query.filter(
+            ((Message.sender_id == sender) & (Message.receiver_id == receiver)) |
+            ((Message.sender_id == receiver) & (Message.receiver_id == sender))
+        ).all()
+        return jsonify([{'sender_id': m.sender_id, 'text': m.text} for m in msgs])
+def messages():
+    if request.method == 'POST':
+        data = request.json
+        new_msg = Message(sender_id=data['sender_id'], receiver_id=data['receiver_id'], text=data['text'])
+        db.session.add(new_msg)
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    else:
+        sender = request.args.get('sender_id')
+        receiver = request.args.get('receiver_id')
         msgs = Message.query.filter(
             ((Message.sender_id == sender) & (Message.receiver_id == receiver)) |
             ((Message.sender_id == receiver) & (Message.receiver_id == sender))
