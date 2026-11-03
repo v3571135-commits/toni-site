@@ -212,16 +212,28 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
             }
         };
 
-       function register() {
-            var name = document.getElementById('reg-name').value.trim();
-            var id = document.getElementById('reg-id').value.trim();
-            var avatar = window.currentAvatar || '👤';
+       function loadMessages() {
+            if (!currentChatUser || !myUserId) return;
+            
+            fetch(`/api/messages?sender_id=${myUserId}&receiver_id=${currentChatUser}`)
+            .then(res => res.json())
+            .then(msgs => {
+                let box = document.getElementById('chat-messages');
+                box.innerHTML = '';
+                msgs.forEach(m => {
+                    let cls = (m.sender_id == myUserId) ? 'my' : 'their';
+                    box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
 
-            if (name === "" || id === "") {
-                alert("Пожалуйста, заполни оба поля!");
-                return;
+        // Добавляем автозагрузку сообщений каждую секунду
+        setInterval(() => {
+            if (currentChatUser) {
+                loadMessages();
             }
-
+        }, 1000);
             // Отправляем данные на сервер (в базу данных)
             fetch('/api/register', {
                 method: 'POST',
