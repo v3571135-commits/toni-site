@@ -164,9 +164,11 @@
             updateInterval = setInterval(loadMessages, 2000);
         }
 
-        function loadMessages() {
+      function loadMessages() {
             if (currentChatId === null) return;
-            var targetId = currentChatId === 0 ? myUserId : currentChatId;
+            
+            // Если это заметки (0), то ищем сообщения для себя любимого
+            var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
             .then(function(res) { return res.json(); })
@@ -188,13 +190,13 @@
         function sendMsg() {
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
-            var targetId = currentChatId === 0 ? myUserId : currentChatId;
+            
+            // Если это заметки, отправляем самому себе
+            var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
                 method: 'POST',
-
-
-ders: {'Content-Type': 'application/json'},
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
             }).then(function() {
                 document.getElementById('msg-input').value = '';
