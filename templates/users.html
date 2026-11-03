@@ -3,52 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>TONI - Мессенджер</title>
-   <style>
+    <style>
+        * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 15px; border-right: 2px solid #007bff; box-sizing: border-box; }
-        .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; transition: 0.3s; }
+        
+        /* Левое меню */
+        .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #007bff; flex-shrink: 0; }
+        .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; transition: 0.3s; cursor: pointer; }
         .sidebar a:hover { background-color: #007bff; color: white; }
-        .main-content { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; overflow-y: auto; }
-        .window { background-color: #ffffff; width: 98%; min-height: 95vh; border: 2px solid #007bff; border-radius: 10px; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; }
-        h1 { color: #007bff; text-align: center; margin-top: 0; }
-        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-bar input { flex: 1; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; color: #333; border-radius: 5px; font-size: 16px; }
-        .search-bar button { padding: 0 25px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .chat-area { display: none; flex-direction: column; flex: 1; }
-        .chat-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 2px solid #dee2e6; margin-bottom: 15px; }
-        .chat-messages { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 15px; border-radius: 10px; max-width: 70%; }
-        .msg.my { background-color: #007bff; color: white; align-self: flex-end; }
-        .msg.their { background-color: #e9ecef; color: #333; align-self: flex-start; }
-        .chat-input-area { display: flex; gap: 10px; }
-        .chat-input-area input { flex: 1; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; color: #333; border-radius: 5px; }
-        .chat-input-area button { padding: 0 25px; background: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        /* Основное окно */
+        .main-content { flex: 1; display: flex; background-color: #ffffff; }
+        
+        /* Левая колонка с чатами */
+        .chat-list { width: 300px; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; background: #f8f9fa; }
+        .search-bar { padding: 15px; border-bottom: 1px solid #dee2e6; }
+        .search-bar input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; }
+        .search-results { max-height: 150px; overflow-y: auto; border-bottom: 1px solid #dee2e6; }
+        .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
+        .search-item:hover { background: #e9ecef; }
+        
+        .chats-container { flex: 1; overflow-y: auto; }
+        .chat-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .chat-item:hover { background: #e9ecef; }
+        .chat-item.active { background: #cce5ff; border-left: 4px solid #007bff; }
+        
+        /* Правая колонка с сообщениями */
+        .chat-window { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
+        .chat-header { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px; background: #ffffff; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f0f4f8; }
+        
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 70%; word-wrap: break-word; position: relative; }
+        .msg.my { background-color: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+        .msg.their { background-color: #ffffff; color: #333; align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid #dee2e6; }
+        .msg-time { font-size: 10px; opacity: 0.7; margin-top: 5px; text-align: right; }
+        
+        .chat-input-area { padding: 15px; border-top: 1px solid #dee2e6; display: flex; gap: 10px; background: #ffffff; }
+        .chat-input-area input { flex: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 20px; font-size: 16px; outline: none; }
+        .chat-input-area button { padding: 0 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        
+        .empty-chat { display: flex; align-items: center; justify-content: center; height: 100%; color: #6c757d; font-size: 18px; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <a href="/">← Назад в Тони</a>
-        <a href="#" onclick="logout()">Выйти</a>
+        <a href="/profile">👤 Профиль</a>
+        <a href="/users" style="background-color: #007bff; color: white;">💬 Мои чаты</a>
+        <a onclick="openChat(0, 'Заметки', '🔒')">📝 Заметки</a>
+        <a href="/">← На главную</a>
     </div>
 
     <div class="main-content">
-        <div class="window">
-            <div id="search-view">
-                <h1>Поиск пользователей</h1>
-                <div class="search-bar">
-                    <input type="text" id="search-input" placeholder="Введи ID или Имя...">
-                    <button onclick="searchUser()">Найти</button>
-                </div>
-                <div id="search-result"></div>
+        <!-- Список чатов -->
+        <div class="chat-list">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Поиск по ID или имени..." oninput="searchUsers()">
+                <div class="search-results" id="search-results"></div>
             </div>
+            <div class="chats-container" id="chats
+                container">
+                <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
+                    <div style="font-size: 24px;">🔒</div>
+                    <div><b>Заметки</b>
+<s>Твой личный блокнот</small></div>
+                </div>
+                <!-- Сюда будут добавляться другие чаты -->
+            </div>
+        </div>
 
-            <div id="chat-view" class="chat-area">
-                <button onclick="backToSearch()" style="background: none; border: none; color: #E65C00; cursor: pointer; text-align: left; margin-bottom: 10px;">← Назад к поиску</button>
+        <!-- Окно чата -->
+        <div class="chat-window" id="chat-window">
+            <div class="empty-chat" id="empty-state">Выбери чат или найди пользователя</div>
+            
+            <div id="active-chat" style="display: none; flex-direction: column; height: 100%;">
                 <div class="chat-header">
-                    <div style="font-size: 30px;" id="chat-avatar">👤</div>
+                    <div style="font-size: 30px;" id="header-avatar">👤</div>
                     <div>
-                        <h2 id="chat-name" style="margin:0; color:#E65C00;">Имя</h2>
-                        <p id="chat-username" style="margin:0; color:#888;">@id</p>
+                        <h3 style="margin: 0;" id="header-name">Имя</h3>
+                        <small style="color: #6c757d;" id="header-id">@id</small>
                     </div>
                 </div>
                 <div class="chat-messages" id="chat-messages"></div>
@@ -56,98 +88,108 @@
                     <input type="text" id="msg-input" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendMsg()">
                     <button onclick="sendMsg()">➤</button>
                 </div>
-            <
-
-
-div>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentChatUser = null;
-        let myUserId = localStorage.getItem('toni_user_id'); 
+        let myUserId = parseInt(localStorage.getItem('toni_user_id'));
+        let currentChatId = null;
+        let currentChatName = "";
+        let updateInterval = null;
 
         if (!myUserId) {
             alert("Сначала зарегистрируйся в профиле!");
             window.location.href = "/profile";
         }
 
-        function searchUser() {
+        // Поиск пользователей
+        function searchUsers() {
             let query = document.getElementById('search-input').value.trim();
-            if(!query) return;
+            let resDiv = document.getElementById('search-results');
+            
+            if (query.length < 2) { resDiv.innerHTML = ''; return; }
 
-            fetch('/api/search', {
+            fetch('/api/search_users', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({query: query})
             })
             .then(res => res.json())
-            .then(data => {
-                let resDiv = document.getElementById('search-result');
-                if (data.error) {
-                    resDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
-                } else {
-                    resDiv.innerHTML = `
-                        <div class="user-card" style="background:#1A1A1A; padding:15px; border-radius:5px; display:flex; gap:15px; cursor:pointer;" onclick="openChat(${data.id}, '${data.name}', '${data.username}', '${data.avatar}')">
-                            <div style="font-size:30px;">${data.avatar}</div>
-                            <div>
-                                <h3 style="margin:0; color:#E65C00;">${data.name}</h3>
-                                <p style="margin:0; color:#888;">@${data.username}</p>
+            .then(users => {
+                resDiv.innerHTML = '';
+                users.forEach(u => {
+                    if (u.id !== myUserId) {
+                        resDiv.innerHTML += `
+                            <div class="search-item" onclick="openChat(${u.id}, '${u.name}', '${u.avatar}')">
+                                <span style="font-size: 20px;">${u.avatar}</span> 
+                                <div><b>${u.name}</b> <small>@${u.username}</small></div>
                             </div>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
+                });
             });
         }
 
-        function openChat(id, name, username, avatar) {
-            currentChatUser = id;
-            document.getElementById('search-view').style.display = 'none';
-            document.getElementById('chat-view').style.display = 'flex';
-            document.getElementById('chat-avatar').innerText = avatar;
-            document.getElementById('chat-name').innerText = name;
-            document.getElementById('chat-username').innerText = "@" + username;
+        // Открытие чата
+        function openChat(id, name, avatar) {
+            currentChatId = id;
+            currentChatName = name;
+            
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('active-chat').style.display = 'flex';
+            
+            document.getElementById('header-avatar').innerText = avatar;
+            document.getElementById('header-name').innerText = name;
+            document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
+            
             loadMessages();
+            
+            // Обновляем сообщения каждые 2 секунды (чтобы видеть новые)
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(loadMessages, 2000);
         }
 
-        function backToSearch() {
-            document.getElementById('chat-view').style.display = 'none';
-            document.getElementById('search-view').style.display = 'block';
-            currentChatUser = null;
-        }
-
+        // Загрузка сообщений
         function loadMessages() {
-            fetch(`/api/messages?sender_id=${myUserId}&receiver_id=${currentChatUser}`)
+            if (currentChatId === null) return;
+            
+            let targetId = currentChatId === 0 ? myUserId : currentChatId;
+
+            fetch(`/api/messages/${myUserId}/${targetId}`)
             .then(res => res.json())
             .then(msgs => {
                 let box = document.getElementById('chat-messages');
+                let wasAtBottom = box.scrollHeight - box.
+                    scrollTop === box.clientHeight;
+                
                 box.innerHTML = '';
                 msgs.forEach(m => {
-                    let cls = (m.sender_id == myUserId) ? 'my' : 'their';
+                    let isMine = (m.sender_id === myUserId);
+                    let cls = isMine ? 'my' : 'their';
                     box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
                 });
-                box.scrollTop = box.scrollHeight;
+                
+                if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
         }
 
+        // Отправка сообщения
         function sendMsg() {
             let text = document.getElementById('msg-input').value.trim();
-            if(!text || !currentChatUser) return;
+            if (!text || currentChatId === null) return;
 
-            fetch('/api/messages', {
+            let targetId = currentChatId === 0 ? myUserId : currentChatId;
+
+            fetch('/api/messages/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({sender_id: myUserId, receiver_id: currentChatUser, text: text})
+                body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
             }).then(() => {
                 document.getElementById('msg-input').value = '';
                 loadMessages();
             });
         }
-
-        function logout() {
-            localStorage.removeItem('toni_user_id');
-            window.location.href = "/profile";
-        }
     </script>
 </body>
-</html>/
+</html>-
