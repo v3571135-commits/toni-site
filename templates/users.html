@@ -95,7 +95,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
         var currentChatId = null;
         var updateInterval = null;
@@ -168,7 +168,7 @@
             if (currentChatId === null) return;
             var targetId = currentChatId === 0 ? myUserId : currentChatId;
 
-            fetch(`/api/messages/${myUserId}/${targetId}`)
+            fetch('/api/messages/' + myUserId + '/' + targetId)
             .then(function(res) { return res.json(); })
             .then(function(msgs) {
                 var box = document.getElementById('chat-messages');
@@ -178,7 +178,7 @@
                 msgs.forEach(function(m) {
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
-                    box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
+                    box.innerHTML += '<div class="msg ' + cls + '">' + m.text + '</div>';
                 });
                 
                 if (wasAtBottom) box.scrollTop = box.scrollHeight;
@@ -192,10 +192,9 @@
 
             fetch('/api/messages/send', {
                 method: 'POST',
-                headers: {
 
 
--Type': 'application/json'},
+ders: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
             }).then(function() {
                 document.getElementById('msg-input').value = '';
