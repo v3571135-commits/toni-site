@@ -1,58 +1,32 @@
 from flask import Flask, render_template, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///toni.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-# ОГРОМНЫЙ СЛОВАРЬ ТОНИ
+# Модели базы данных
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    avatar = db.Column(db.String(10), default='👤')
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+
+with app.app_context():
+    db.create_all()
+
+# Словарь
 my_dict = {
-    # Приветствия
-    "привет": "Привет! Я Тони, твой помощник по сайту. Чем могу помочь?",
-    "здравствуй": "Здравствуй! Рад тебя видеть. Задай мне вопрос или нажми на кнопку ниже.",
-    "как дела": "У меня всё отлично, я же программа! А у тебя как?",
-    "пока": "Пока! Возвращайся скорее, я всегда тут.",
-
-    # Помощь и навигация
-    "помощь": "Я умею отвечать на вопросы о нашем сайте. Спроси меня про: 'профиль', 'рекомендации', 'отзывы', 'настройки', 'история'. Или просто нажми на кнопки быстрых вопросов!",
-    "что ты умеешь": "Я знаю всё о функциях этого сайта! Могу рассказать, как зарегистрироваться, как найти друзей в 'Рекомендациях', как оставить отзыв и многое другое.",
-    "навигация": "Слева находится главное меню. Там есть: Личный кабинет, Настройки, Подписка, История, Отзывы и Другие пользователи.",
-    "меню": "Слева находится главное меню. Там есть: Личный кабинет, Настройки, Подписка, История, Отзывы и Другие пользователи.",
-
-    # Профиль
-    "профиль": "В разделе 'Личный кабинет' (или 'Профиль') ты можешь зарегистрироваться. Придумай себе Имя и уникальный ID (без почты и телефона). Там же можно выбрать аватарку и сменить данные.",
-    "личный кабинет": "В разделе 'Личный кабинет' ты можешь зарегистрироваться. Придумай себе Имя и уникальный ID (без почты и телефона). Там же можно выбрать аватарку и сменить данные.",
-    "регистрация": "Чтобы зарегистрироваться, зайди в 'Личный кабинет'. Придумай Имя и ID (латиницей). Почта и телефон не нужны! После этого выбери аватарку и нажми 'Создать аккаунт'.",
-    "аватарка": "Сменить или выбрать аватарку можно в 'Личном кабинете'. Там есть кнопка 'Выбрать' напротив твоего текущего аватара.",
-
-    # Рекомендации и пользователи
-    "рекомендации": "Раздел 'Другие пользователи' -> 'Рекомендации'. Там ты можешь нажать на пунктирное окно и создать свою анкету: придумать Тему (о чем хочешь поговорить) и Описание. Твоя анкета появится в списке.",
-    "другие пользователи": "Раздел 'Другие пользователи' -> 'Рекомендации'. Там ты можешь нажать на пунктирное окно и создать свою анкету: придумать Тему (о чем хочешь поговорить) и Описание. Твоя анкета появится в списке.",
-    "как найти друзей": "Зайди в раздел 'Другие пользователи' (или Рекомендации). Нажми на пустое пунктирное окно, создай анкету с темой общения. Так другие люди смогут тебя найти.",
-    "анкета": "Чтобы создать анкету, зайди в 'Рекомендации', нажми на пунктирную рамку и заполни два поля: Тема (например, 'Ищу напарника по физике') и Описание (подробности).",
-
-    # Отзывы
-    "отзывы": "В разделе 'Отзывы' ты можешь поставить оценку сайту (от 1 до 5 звезд) и написать текстовый отзыв. Свои отзывы можно редактировать или удалять.",
-    "как оставить отзыв": "Зайди в раздел 'Отзывы' в левом меню. Поставь звезды, напиши текст и нажми 'Оставить отзыв'. Он появится в списке ниже.",
-
-    # Настройки
-    "настройки": "В разделе 'Настройки' можно включить уведомления (браузер спросит разрешение). Там же можно выбрать звук уведомления. Темная тема всегда включена, чтобы глаза не уставали.",
-    "уведомления": "В 'Настройках' включи тумблер 'Включить уведомления'. Разреши браузеру показывать их, и ты сможешь получать сообщения от сайта.",
-    "звук": "В 'Настройках', после включения уведомлений, появится список звуков. Пока они в разработке, но скоро будут работать!",
-
-    # История и подписка
-    "история": "Раздел 'История' рассказывает о том, как создавался этот сайт и Тони. Там описаны главы разработки, выбор дизайна и планы на будущее.",
-    "подписка": "Раздел 'Подписка' пока недоступен. Сайт работает бесплатно, но в будущем, возможно, появятся платные функции.",
-    "подписка недоступна": "Раздел 'Подписка' пока недоступен. Сайт работает бесплатно, но в будущем, возможно, появятся платные функции.",
-
-    # Интересы (база знаний)
-    "паук": "Питер Паркер одобряет! Человек-паук — это классика.",
-    "человек паук": "Питер Паркер одобряет! Человек-паук — это классика.",
-    "математика": "Математика — язык вселенной. Без неё нейросети не работают.",
-    "теорема пифагора": "Квадрат гипотенузы равен сумме квадратов катетов.",
-    "ньютон": "Второй закон Ньютона: F = ma (Сила равна массе, умноженной на ускорение).",
-
-    # Разработка
-    "кто тебя создал": "Меня создала Виктория! Она написала код на Python (Flask) и сделала дизайн на HTML/CSS.",
-    "как ты сделан": "Я работаю на Python (Flask). Мой интерфейс сделан на HTML/CSS, а общаюсь я с помощью огромного словаря, который написала моя создательница.",
-    "ошибка": "Если ты видишь ошибку, напиши об этом в 'Отзывы' или свяжись с создателем через кнопку справа."
+    "привет": "Привет! Я Тони, твой помощник по сайту.",
+    "как дела": "У меня всё отлично, я же программа!",
+    "помощь": "Я умею отвечать на вопросы о сайте. Спроси про 'профиль', 'рекомендации' или 'настройки'.",
 }
 
 @app.route('/')
@@ -63,52 +37,65 @@ def home():
 def ask():
     data = request.json
     user_text = data.get('text', '').lower().strip()
-    
-    # 1. Ищем точное совпадение
     if user_text in my_dict:
         return jsonify({'answer': my_dict[user_text]})
-    
-    # 2. Ищем ключевые слова (если вопрос длинный)
-    for key in my_dict:
-        if key in user_text:
-            return jsonify({'answer': my_dict[key]})
-            
-    # 3. Если ничего не нашли
-    return jsonify({'answer': "Я пока не знаю, что на это ответить. Я ведь работаю на простом словаре. Попробуй нажать на кнопки быстрых вопросов или спроси про 'профиль', 'рекомендации' или 'отзывы'."})
+    return jsonify({'answer': "Я пока не знаю, что на это ответить. Спроси про 'помощь'."})
 
+# API для пользователей
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    new_user = User(username=data['username'], name=data['name'], avatar=data['avatar'])
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({'status': 'ok', 'user_id': new_user.id})
+    except:
+        return jsonify({'error': 'Этот ID уже занят'})
+
+@app.route('/api/search', methods=['POST'])
+def search():
+    data = request.json
+    query = data.get('query', '')
+    user = User.query.filter((User.username.contains(query)) | (User.name.contains(query))).first()
+    if user:
+        return jsonify({'id': user.id, 'username': user.username, 'name': user.name, 'avatar': user.avatar})
+    return jsonify({'error': 'Пользователь не найден'})
+
+@app.route('/api/messages', methods=['GET', 'POST'])
+def messages():
+    if request.method == 'POST':
+        data = request.json
+        new_msg = Message(sender_id=data['sender_id'], receiver_id=data['receiver_id'], text=data['text'])
+        db.session.add(new_msg)
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    else:
+        sender = request.args.get('sender_id')
+        receiver = request.args.get('receiver_id')
+        msgs = Message.query.filter(
+            ((Message.sender_id == sender) & (Message.receiver_id == receiver)) |
+            ((Message.sender_id == receiver) & (Message.receiver_id == sender))
+        ).all()
+        return jsonify([{'sender_id': m.sender_id, 'text': m.text} for m in msgs])
+
+# Остальные страницы
 @app.route('/profile')
-def profile():
-    return render_template('profile.html')
-
+def profile(): return render_template('profile.html')
 @app.route('/settings')
-def settings():
-    return render_template('settings.html')
-
+def settings(): return render_template('settings.html')
 @app.route('/subscription')
-def subscription():
-    return render_template('subscription.html')
-
+def subscription(): return render_template('subscription.html')
 @app.route('/history')
-def history():
-    return render_template('history.html')
-
+def history(): return render_template('history.html')
 @app.route('/reviews')
-def reviews():
-    return render_template('reviews.html')
-
+def reviews(): return render_template('reviews.html')
 @app.route('/users')
-def users():
-    return render_template('users.html')
-
+def users(): return render_template('users.html')
 @app.route('/suggest')
-def suggest():
-    return render_template('reviews.html')
-
+def suggest(): return render_template('reviews.html')
 @app.route('/creator')
-def creator():
-    return render_template('reviews.html')
+def creator(): return render_template('reviews.html')
 
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=8080)
