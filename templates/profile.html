@@ -31,9 +31,18 @@
         .register-subtitle { text-align: center; color: #ccc; margin-bottom: 20px; }
         .avatar-selection { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
         .avatar-option {
-            width: 60px; height: 60px; background-color: #333; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px; cursor: pointer; border: 3px solid transparent; transition: 0.2s;
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: 0.2s;
+            box-sizing: border-box; /* Это добавит рамку внутрь размера */
         }
         .avatar-option:hover { transform: scale(1.1); }
         .avatar-option.selected { border-color: #E65C00; background-color: #555; }
