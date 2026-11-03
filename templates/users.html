@@ -116,6 +116,41 @@
 
             resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
 
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/api/search_users", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var users = JSON.parse(xhr.responseText);
+                        resDiv.innerHTML = '';
+                        
+                        if (users.length === 0) {
+                            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Никого не найдено</div>';
+                            return;
+                        }
+                        
+                        for (var i = 0; i < users.length; i++) {
+                            var u = users[i];
+                            if (u.id !== myUserId) {
+                                var html = '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">';
+                                html += '<span style="font-size: 20px;">' + u.avatar + '</span>';
+                                html += '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
+                                resDiv.innerHTML += html;
+                            }
+                        }
+                    } else {
+                        resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
+                    }
+                }
+            };
+            
+            xhr.send(JSON.stringify({query: query}));
+        }
+
+            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
+
             fetch('/api/search_users', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
