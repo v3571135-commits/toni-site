@@ -142,4 +142,4 @@ def posts(): return render_template('posts.html')
 def games(): return render_template('games.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)_
+    app.run(host='0.0.0.0', port=8080)
