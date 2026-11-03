@@ -7,19 +7,19 @@
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Левое меню */
         .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #007bff; flex-shrink: 0; }
         .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; transition: 0.3s; cursor: pointer; }
         .sidebar a:hover { background-color: #007bff; color: white; }
         
-        /* Основное окно */
         .main-content { flex: 1; display: flex; background-color: #ffffff; }
         
-        /* Левая колонка с чатами */
-        .chat-list { width: 300px; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; background: #f8f9fa; }
-        .search-bar { padding: 15px; border-bottom: 1px solid #dee2e6; }
-        .search-bar input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; }
-        .search-results { max-height: 150px; overflow-y: auto; border-bottom: 1px solid #dee2e6; }
+        /* Левая колонка */
+        .chat-list { width: 320px; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; background: #f8f9fa; }
+        .search-bar { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; gap: 5px; }
+        .search-bar input { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; }
+        .search-bar button { padding: 0 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        .search-results { max-height: 200px; overflow-y: auto; border-bottom: 1px solid #dee2e6; background: #fff; }
         .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
         .search-item:hover { background: #e9ecef; }
         
@@ -28,21 +28,23 @@
         .chat-item:hover { background: #e9ecef; }
         .chat-item.active { background: #cce5ff; border-left: 4px solid #007bff; }
         
-        /* Правая колонка с сообщениями */
+        /* Правая колонка */
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
         .chat-header { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px; background: #ffffff; }
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f0f4f8; }
         
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 70%; word-wrap: break-word; position: relative; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 70%; word-wrap: break-word; }
         .msg.my { background-color: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
         .msg.their { background-color: #ffffff; color: #333; align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid #dee2e6; }
-        .msg-time { font-size: 10px; opacity: 0.7; margin-top: 5px; text-align: right; }
         
         .chat-input-area { padding: 15px; border-top: 1px solid #dee2e6; display: flex; gap: 10px; background: #ffffff; }
         .chat-input-area input { flex: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 20px; font-size: 16px; outline: none; }
         .chat-input-area button { padding: 0 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
         
         .empty-chat { display: flex; align-items: center; justify-content: center; height: 100%; color: #6c757d; font-size: 18px; }
+        
+        /* Стили для заметок */
+        .note-desc { color: #6c757d; font-size: 13px; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -54,26 +56,27 @@
     </div>
 
     <div class="main-content">
-        <!-- Список чатов -->
         <div class="chat-list">
             <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Поиск по ID или имени..." oninput="searchUsers()">
-                <div class="search-results" id="search-results"></div>
+                <input type="text" id="search-input" placeholder="Поиск..." onkeypress="if(event.key==='Enter') searchUsers()">
+                <buttonclick="searchUsers()">Найти</button>
             </div>
-            <div class="chats-container" id="chats
-                container">
+            <div class="search-results" id="search-results"></div>
+            
+            <div class="chats-container" id="chats-container">
                 <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
                     <div style="font-size: 24px;">🔒</div>
-                    <div><b>Заметки</b>
-<s>Твой личный блокнот</small></div>
+                    <div>
+                        <div style="font-weight: bold; color: #333;">Заметки</div>
+                        <div class="note-desc">Твой личный блокнот</div>
+                    </div>
                 </div>
-                <!-- Сюда будут добавляться другие чаты -->
             </div>
         </div>
 
-        <!-- Окно чата -->
-        <div class="chat-window" id="chat-window">
-            <div class="empty-chat" id="empty-state">Выбери чат или найди пользователя</div>
+        <div class="chat-window">
+            <!-- Убрали надпись "Выбери чат...", теперь тут просто пусто -->
+            <div class="empty-chat" id="empty-state"></div>
             
             <div id="active-chat" style="display: none; flex-direction: column; height: 100%;">
                 <div class="chat-header">
@@ -95,7 +98,6 @@
     <script>
         let myUserId = parseInt(localStorage.getItem('toni_user_id'));
         let currentChatId = null;
-        let currentChatName = "";
         let updateInterval = null;
 
         if (!myUserId) {
@@ -103,12 +105,14 @@
             window.location.href = "/profile";
         }
 
-        // Поиск пользователей
         function searchUsers() {
             let query = document.getElementById('search-input').value.trim();
             let resDiv = document.getElementById('search-results');
             
-            if (query.length < 2) { resDiv.innerHTML = ''; return; }
+            if (query.length < 2) { 
+                resDiv.innerHTML = '<div style="padding:10px; color:#888;">Введи хотя бы 2 символа</div>'; 
+                return; 
+            }
 
             fetch('/api/search_users', {
                 method: 'POST',
@@ -118,12 +122,16 @@
             .then(res => res.json())
             .then(users => {
                 resDiv.innerHTML = '';
+                if (users.length === 0) {
+                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Никого не найдено</div>';
+                    return;
+                }
                 users.forEach(u => {
                     if (u.id !== myUserId) {
                         resDiv.innerHTML += `
                             <div class="search-item" onclick="openChat(${u.id}, '${u.name}', '${u.avatar}')">
                                 <span style="font-size: 20px;">${u.avatar}</span> 
-                                <div><b>${u.name}</b> <small>@${u.username}</small></div>
+                                <div><b>${u.name}</b> <small style="color:#6c757d;">@${u.username}</small></div>
                             </div>
                         `;
                     }
@@ -131,10 +139,11 @@
             });
         }
 
-        // Открытие чата
         function openChat(id, name, avatar) {
             currentChatId = id;
-            currentChatName = name;
+            
+            document.getElementById('search-results').innerHTML = '';
+            document.getElementById('search-input').value = '';
             
             document.getElementById('empty-state').style.display = 'none';
             document.getElementById('active-chat').style.display = 'flex';
@@ -145,23 +154,19 @@
             
             loadMessages();
             
-            // Обновляем сообщения каждые 2 секунды (чтобы видеть новые)
             if (updateInterval) clearInterval(updateInterval);
             updateInterval = setInterval(loadMessages, 2000);
         }
 
-        // Загрузка сообщений
         function loadMessages() {
             if (currentChatId === null) return;
-            
             let targetId = currentChatId === 0 ? myUserId : currentChatId;
 
             fetch(`/api/messages/${myUserId}/${targetId}`)
             .then(res => res.json())
             .then(msgs => {
                 let box = document.getElementById('chat-messages');
-                let wasAtBottom = box.scrollHeight - box.
-                    scrollTop === box.clientHeight;
+                let wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
                 box.innerHTML = '';
                 msgs.forEach(m => {
@@ -174,11 +179,9 @@
             });
         }
 
-        // Отправка сообщения
         function sendMsg() {
             let text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
-
             let targetId = currentChatId === 0 ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
@@ -192,4 +195,4 @@
         }
     </script>
 </body>
-</html>-
+</html> 
