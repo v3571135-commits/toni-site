@@ -35,7 +35,7 @@
         <!-- ЭКРАН РЕГИСТРАЦИИ -->
         <div id="register-screen">
             <h1 class="register-title">Регистрация в TONI</h1>
-            <p class="register-subtitle">Выбери аватарку, придумай имя и уникальный ID</p>
+            <p class="register-subtitle">Выбери аватарку, придумай имя, ID и почту</p>
             
             <div class="avatar-selection" id="avatar-picker">
                 <div class="avatar-option selected" onclick="selectAvatar(this, '👤')">👤</div>
@@ -51,11 +51,8 @@
             </div>
             <div class="form-group">
                 <label>ID (латиницей)</label>
-                <input type="text" id="reg-id" placeholder="Например, spiderman_01">
+                input type="text" id="reg-id" placeholder="Например, spiderman_01">
             </div>
-            
-            
-            <!-- ВОТ ЭТОТ БЛОК ДОБАВЛЯЕМ -->
             <div class="form-group">
                 <label>Почта</label>
                 <input type="email" id="reg-email" placeholder="example@mail.com">
@@ -70,25 +67,29 @@
             <div class="profile-header">
                 <div class="big-avatar" id="display-avatar">👤</div>
                 <div>
-                    <h2 style="margin:0; color: #E65C00;">Мой профиль</h2>
-                    <p style="margin:5px 0 0 0; color:#ccc;">Добро пожаловать в систему!</p>
+                    <h2 style="margin:0; color: #007bff;">Мой профиль</h2>
+                    <p style="margin:5px 0 0 0; color:#6c757d;">Добро пожаловать в систему!</p>
                 </div>
             </div>
 
             <div class="profile-info-row">
                 <div>Аватарка: <span id="display-avatar-text">👤</span></div>
-                <button class="btn-small" onclick="alert('Выбор аватарки будет доступен позже!')">Выбрать</button>
+                <button class="btn-small" onclick="alert('Смена аватарки будет позже!')">Выбрать</button>
             </div>
             <div class="profile-info-row">
                 <div>Имя: <span id="display-name">...</span></div>
-                <button class="btn-small" onclick="alert('Смена имени будет доступна позже!')">Сменить имя</button>
+                <button class="btn-small" onclick="alert('Смена имени будет позже!')">Сменить имя</button>
             </div>
             <div class="profile-info-row">
                 <div>ID: <span id="display-id">...</span></div>
-                <button class="btn-small" onclick="alert('Смена ID будет доступна позже!')">Сменить ID</button>
+                <button class="btn-small" onclick="alert('Смена ID будет позже!')">Сменить ID</button>
+            </div>
+            <div class="profile-info-row">
+                <div>Почта: <span id="display-email">...</span></div>
+                <button class="btn-small" onclick="alert('Смена почты будет позже!')">Сменить почту</button>
             </div>
 
-            <button class="btn" onclick="changeAccount()" style="background-color: #333; color: #E65C00; border: 1px solid #E65C00; margin-top: 20px;">Выйти из аккаунта</button>
+            <button class="btn" onclick="changeAccount()" style="background-color: #6c757d; margin-top: 20px;">Выйти из аккаунта</button>
             <a href="/" class="back-link">← Вернуться в чат</a>
         </div>
     </div>
@@ -96,6 +97,7 @@
     <script>
         var currentAvatar = '👤';
 
+        // Функция выбора аватарки
         function selectAvatar(element, emoji) {
             var options = document.querySelectorAll('.avatar-option');
             for (var i = 0; i < options.length; i++) {
@@ -105,39 +107,34 @@
             currentAvatar = emoji;
         }
 
+        // При загрузке страницы проверяем, есть ли сохраненный профиль
         window.onload = function() {
             var savedName = localStorage.getItem('toni_name');
             var savedId = localStorage.getItem('toni_id');
             var savedAvatar = localStorage.getItem('toni_avatar');
+            var savedEmail = localStorage.getItem('toni_email');
             
             if (savedName && savedId) {
-                showProfile(savedName, savedId, savedAvatar || '👤');
+                showProfile(savedName, savedId, savedAvatar || '👤', savedEmail || '');
             }
         };
-        var currentAvatar = '👤';
 
-        function selectAvatar(element, emoji) {
-            // Убираем рамку у всех аватарок
-            var options = document.querySelectorAll('.avatar-option');
-            for (var i = 0; i < options.length; i++) {
-                options[i].classList.remove('selected');
-            }
-            // Добавляем рамку выбранной
-            element.classList.add('selected');
-            currentAvatar = emoji;
-        }
-
+        // Функция регистрации
         function register() {
-           var name = document.getElementById('reg-name').value.trim();
+            var name = document.getElementById('reg-name').value.trim();
             var id = document.getElementById('reg-id').value.trim();
-            var email = document.getElementById('reg-email').value.trim(); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+            var email = document.getElementById('reg-email').value.trim();
             var avatar = currentAvatar;
+
+            if (name === "" || id === "" || email === "") {
+                alert("Пожалуйста, заполни все поля!");
+                return;
             }
 
             fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name: name, username: id, email: email, password: "123", avatar: avatar}) // <-- ДОБАВИТЬ email: email и password: "123"
+                body: JSON.stringify({name: name, username: id, email: email, avatar: avatar, password: "123"})
             })
             .then(res => res.json())
             .then(data => {
@@ -148,15 +145,18 @@
                     localStorage.setItem('toni_name', name);
                     localStorage.setItem('toni_id', id);
                     localStorage.setItem('toni_avatar', avatar);
-                    showProfile(name, id, avatar);
+                    localStorage.setItem('toni_email', email);
+                    showProfile(name, id, avatar, email);
                 }
             })
-            .catch(err => {alert("Ошибка сервера. Попробуй еще раз.");
+            .catch(err => {
+                alert("Ошибка сервера. Попробуй еще раз.");
                 console.error(err);
             });
         }
 
-        function showProfile(name, id, avatar) {
+        // Функция показа профиля
+        function showProfile(name, id, avatar, email) {
             document.getElementById('register-screen').style.display = 'none';
             document.getElementById('profile-screen').classList.remove('hidden');
             
@@ -164,18 +164,24 @@
             document.getElementById('display-avatar-text').innerText = avatar;
             document.getElementById('display-name').innerText = name;
             document.getElementById('display-id').innerText = "@" + id;
+            if(document.getElementById('display-email')) {
+                document.getElementById('display-email').innerText = email;
+            }
         }
 
+        // Функция выхода
         function changeAccount() {
             localStorage.removeItem('toni_user_id');
             localStorage.removeItem('toni_name');
             localStorage.removeItem('toni_id');
             localStorage.removeItem('toni_avatar');
+            localStorage.removeItem('toni_email');
             document.getElementById('profile-screen').classList.add('hidden');
             document.getElementById('register-screen').style.display = 'block';
             document.getElementById('reg-name').value = '';
             document.getElementById('reg-id').value = '';
+            document.getElementById('reg-email').value = '';
         }
     </script>
 </body>
-</html>
+</html> <
