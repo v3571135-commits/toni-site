@@ -203,8 +203,7 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
             }
         };
 
-        function register() {
-          function register() {
+       function register() {
             var name = document.getElementById('reg-name').value.trim();
             var id = document.getElementById('reg-id').value.trim();
             var avatar = window.currentAvatar || '👤';
@@ -214,6 +213,7 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
                 return;
             }
 
+            // Отправляем данные на сервер (в базу данных)
             fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -224,12 +224,17 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
                 if (data.error) {
                     alert(data.error);
                 } else {
+                    // Сохраняем ID пользователя, чтобы сайт знал, кто мы
                     localStorage.setItem('toni_user_id', data.user_id);
                     localStorage.setItem('toni_name', name);
                     localStorage.setItem('toni_id', id);
                     localStorage.setItem('toni_avatar', avatar);
                     showProfile(name, id, avatar);
                 }
+            })
+            .catch(err => {
+                alert("Ошибка сервера. Попробуй еще раз.");
+                console.error(err);
             });
         }
 
