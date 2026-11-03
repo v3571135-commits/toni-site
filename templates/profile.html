@@ -119,13 +119,10 @@
         };
 
         function register() {
-            var name = document.getElementById('reg-name').value.trim();
+           var name = document.getElementById('reg-name').value.trim();
             var id = document.getElementById('reg-id').value.trim();
+            var email = document.getElementById('reg-email').value.trim(); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
             var avatar = currentAvatar;
-
-            if (name === "" || id === "") {
-                alert("Пожалуйста, заполни оба поля!");
-                return;
             }
 
             fetch('/api/register', {
