@@ -96,9 +96,9 @@
     </div>
 
     <script>
-        let myUserId = parseInt(localStorage.getItem('toni_user_id'));
-        let currentChatId = null;
-        let updateInterval = null;
+        var myUserId = parseInt(localStorage.getItem('toni_user_id'));
+        var currentChatId = null;
+        var updateInterval = null;
 
         if (!myUserId) {
             alert("Сначала зарегистрируйся в профиле!");
@@ -106,27 +106,29 @@
         }
 
         function searchUsers() {
-            let query = document.getElementById('search-input').value.trim();
-            let resDiv = document.getElementById('search-results');
+            var query = document.getElementById('search-input').value.trim();
+            var resDiv = document.getElementById('search-results');
             
             if (query.length < 2) { 
                 resDiv.innerHTML = '<div style="padding:10px; color:#888;">Введи хотя бы 2 символа</div>'; 
                 return; 
             }
 
+            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
+
             fetch('/api/search_users', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({query: query})
             })
-            .then(res => res.json())
-            .then(users => {
+            .then(function(res) { return res.json(); })
+            .then(function(users) {
                 resDiv.innerHTML = '';
                 if (users.length === 0) {
                     resDiv.innerHTML = '<div style="padding:10px; color:#888;">Никого не найдено</div>';
                     return;
                 }
-                users.forEach(u => {
+                users.forEach(function(u) {
                     if (u.id !== myUserId) {
                         resDiv.innerHTML += `
                             <div class="search-item" onclick="openChat(${u.id}, '${u.name}', '${u.avatar}')">
@@ -136,6 +138,10 @@
                         `;
                     }
                 });
+            })
+            .catch(function(err) {
+                resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
+                console.log(err);
             });
         }
 
@@ -160,18 +166,18 @@
 
         function loadMessages() {
             if (currentChatId === null) return;
-            let targetId = currentChatId === 0 ? myUserId : currentChatId;
+            var targetId = currentChatId === 0 ? myUserId : currentChatId;
 
             fetch(`/api/messages/${myUserId}/${targetId}`)
-            .then(res => res.json())
-            .then(msgs => {
-                let box = document.getElementById('chat-messages');
-                let wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
+            .then(function(res) { return res.json(); })
+            .then(function(msgs) {
+                var box = document.getElementById('chat-messages');
+                var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
                 box.innerHTML = '';
-                msgs.forEach(m => {
-                    let isMine = (m.sender_id === myUserId);
-                    let cls = isMine ? 'my' : 'their';
+                msgs.forEach(function(m) {
+                    var isMine = (m.sender_id === myUserId);
+                    var cls = isMine ? 'my' : 'their';
                     box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
                 });
                 
@@ -180,15 +186,18 @@
         }
 
         function sendMsg() {
-            let text = document.getElementById('msg-input').value.trim();
+            var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
-            let targetId = currentChatId === 0 ? myUserId : currentChatId;
+            var targetId = currentChatId === 0 ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+
+
+-Type': 'application/json'},
                 body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
-            }).then(() => {
+            }).then(function() {
                 document.getElementById('msg-input').value = '';
                 loadMessages();
             });
