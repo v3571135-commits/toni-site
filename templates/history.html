@@ -84,6 +84,42 @@
             font-weight: bold;
         }
         .btn-icon:hover { background-color: #E65C00; color: black; }
+        /* Адаптивность для телефонов */
+        max-width: 768px {
+            body {
+                flex-direction: column; /* Меняем расположение с горизонтального на вертикальное */
+                height: auto;
+                overflow-y: auto;
+            }
+            .sidebar {
+                width: 100%; /* Меню на всю ширину */
+                border-right: none;
+                border-bottom: 2px solid #E65C00;
+                flex-direction: row; /* Кнопки в ряд */
+                overflow-x: auto; /* Если не влезут, можно скроллить вбок */
+                padding: 10px;
+            }
+            .sidebar a.menu-link {
+                width: auto;
+                white-space: nowrap;
+                font-size: 12px; /* Чуть уменьшаем шрифт */
+                padding: 8px 15px;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .window, .robot-section, .chat-container, .header-box {
+                width: 100%; /* Блоки на всю ширину экрана */
+                margin-bottom: 15px;
+            }
+            .robot-section {
+                flex-direction: column; /* Робота и кнопки ставим друг под другом */
+                gap: 15px;
+            }
+            .chat-container {
+                height: 400px; /* Фиксируем высоту чата для телефона */
+            }
+        }
     </style>
 </head>
 <body>
