@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import random
 
@@ -8,16 +8,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///toni.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- БАЗА ДАННЫХ ---
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(100), nullable=False) 
     avatar = db.Column(db.String(100), default='👤')
-    coins = db.Column(db.Integer, default=0) # Баллы (заработанные)
-    vintiki = db.Column(db.Integer, default=0) # Винтики (купленные)
+    coins = db.Column(db.Integer, default=0) 
+    vintiki = db.Column(db.Integer, default=0) 
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,26 +24,22 @@ class Message(db.Model):
     receiver_id = db.Column(db.Integer, nullable=False)
     text = db.Column(db.Text, nullable=True)
     image_url = db.Column(db.String(200), nullable=True)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     text = db.Column(db.String(500), nullable=True)
     image_url = db.Column(db.String(200), nullable=True)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     text = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 with app.app_context():
     db.create_all()
 
-# --- ОГРОМНЫЙ СЛОВАРЬ ТОНИ ---
 my_dict = {
     "привет": "Привет! Я Тони, твой новый цифровой дом.",
     "как дела": "У меня всё отлично, я же программа! А у тебя как?",
@@ -73,17 +68,18 @@ def ask():
             return jsonify({'answer': my_dict[key]})
     return jsonify({'answer': "Я пока не знаю, что на это ответить. Спроси про 'помощь'."})
 
-# --- API РЕГИСТРАЦИИ И ПОИСКА ---
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Этот ID уже занят!'})
     
-    # Создаем пользователя (пока без отправки почты)
     new_user = User(
-        username=data['username'], name=data['name'], email=data['email'], 
-        password=data['password'], avatar=data['avatar']
+        username=data['username'], 
+        name=data['name'], 
+        email=data['email'], 
+        password=data.get('password', '123'), 
+        avatar=data['avatar']
     )
     db.session.add(new_user)
     db.session.commit()
@@ -104,13 +100,15 @@ def get_user(user_id):
         return jsonify({'id': u.id, 'username': u.username, 'name': u.name, 'avatar': u.avatar, 'vintiki': u.vintiki, 'coins': u.coins})
     return jsonify({'error': 'Не найден'})
 
-# --- API СООБЩЕНИЙ ---
-@app.route('/api/messages/<int:my_id>/<int:other_id>', methods=['GET'])
+@app.route('/api/messages/<int:my_id>/<int:other_id>', methods=[
+
+
+ET'])
 def get_messages(my_id, other_id):
     msgs = Message.query.filter(
         ((Message.sender_id == my_id) & (Message.receiver_id == other_id)) |
         ((Message.sender_id == other_id) & (Message.receiver_id == my_id))
-    ).order_by(Message.timestamp).all()
+    ).order_by(Message.id).all()
     return jsonify([{'sender': m.sender_id, 'text': m.text} for m in msgs])
 
 @app.route('/api/messages/send', methods=['POST'])
@@ -121,7 +119,6 @@ def send_message():
     db.session.commit()
     return jsonify({'status': 'ok'})
 
-# --- ОСТАЛЬНЫЕ СТРАНИЦЫ ---
 @app.route('/profile')
 def profile(): return render_template('profile.html')
 @app.route('/settings')
