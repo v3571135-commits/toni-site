@@ -114,6 +114,18 @@
                 showProfile(savedName, savedId, savedAvatar || '👤');
             }
         };
+        var currentAvatar = '👤';
+
+        function selectAvatar(element, emoji) {
+            // Убираем рамку у всех аватарок
+            var options = document.querySelectorAll('.avatar-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected');
+            }
+            // Добавляем рамку выбранной
+            element.classList.add('selected');
+            currentAvatar = emoji;
+        }
 
         function register() {
            var name = document.getElementById('reg-name').value.trim();
