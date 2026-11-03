@@ -26,23 +26,14 @@
             margin: 20px 0;
         }
         
-        /* --- Стили для экрана регистрации --- */
         .register-title { text-align: center; color: #E65C00; margin-bottom: 10px; }
         .register-subtitle { text-align: center; color: #ccc; margin-bottom: 20px; }
         .avatar-selection { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
         .avatar-option {
-            width: 60px;
-            height: 60px;
-            background-color: #333;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: 0.2s;
-            box-sizing: border-box; /* Это добавит рамку внутрь размера */
+            width: 60px; height: 60px; background-color: #333; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; cursor: pointer; border: 3px solid transparent; transition: 0.2s;
+            box-sizing: border-box;
         }
         .avatar-option:hover { transform: scale(1.1); }
         .avatar-option.selected { border-color: #E65C00; background-color: #555; }
@@ -61,7 +52,6 @@
         }
         .btn:hover { background-color: #ff7700; }
 
-        /* --- Стили для ЛИЧНОГО КАБИНЕТА --- */
         .profile-header { display: flex; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px;}
         .big-avatar {
             width: 100px; height: 100px; background-color: #333; border-radius: 50%;
@@ -87,42 +77,6 @@
         }
         .back-link:hover { text-decoration: underline; }
         .hidden { display: none; }
-        /* Адаптивность для телефонов */
-        max-width: 768px {
-            body {
-                flex-direction: column; /* Меняем расположение с горизонтального на вертикальное */
-                height: auto;
-                overflow-y: auto;
-            }
-            .sidebar {
-                width: 100%; /* Меню на всю ширину */
-                border-right: none;
-                border-bottom: 2px solid #E65C00;
-                flex-direction: row; /* Кнопки в ряд */
-                overflow-x: auto; /* Если не влезут, можно скроллить вбок */
-                padding: 10px;
-            }
-            .sidebar a.menu-link {
-                width: auto;
-                white-space: nowrap;
-                font-size: 12px; /* Чуть уменьшаем шрифт */
-                padding: 8px 15px;
-            }
-            .main-content {
-                padding: 10px;
-            }
-            .window, .robot-section, .chat-container, .header-box {
-                width: 100%; /* Блоки на всю ширину экрана */
-                margin-bottom: 15px;
-            }
-            .robot-section {
-                flex-direction: column; /* Робота и кнопки ставим друг под другом */
-                gap: 15px;
-            }
-            .chat-container {
-                height: 400px; /* Фиксируем высоту чата для телефона */
-            }
-        }
     </style>
 </head>
 <body>
@@ -135,10 +89,7 @@
             
             <div class="avatar-selection" id="avatar-picker">
                 <div class="avatar-option selected" onclick="selectAvatar(this, '👤')">👤</div>
-                <div class="avatar
-
-
-ption" onclick="selectAvatar(this, '😎')">😎</div>
+                <div class="avatar-option" onclick="selectAvatar(this, '😎')">😎</div>
                 <div class="avatar-option" onclick="selectAvatar(this, '🤖')">🤖</div>
                 <div class="avatar-option" onclick="selectAvatar(this, '🕷️')">🕷️</div>
                 <div class="avatar-option" onclick="selectAvatar(this, '⚡')">⚡</div>
@@ -157,7 +108,7 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
             <a href="/" class="back-link">← Вернуться в чат</a>
         </div>
 
-        <!-- ЛИЧНЫЙ КАБИНЕТ (Показывается после входа) -->
+        <!-- ЛИЧНЫЙ КАБИНЕТ -->
         <div id="profile-screen" class="hidden">
             <div class="profile-header">
                 <div class="big-avatar" id="display-avatar">👤</div>
@@ -167,19 +118,14 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
                 </div>
             </div>
 
-            <!-- Блок аватарки -->
             <div class="profile-info-row">
                 <div>Аватарка: <span id="display-avatar-text">👤</span></div>
                 <button class="btn-small" onclick="alert('Выбор аватарки будет доступен позже!')">Выбрать</button>
             </div>
-
-            <!-- Блок имени -->
             <div class="profile-info-row">
                 <div>Имя: <span id="display-name">...</span></div>
                 <button class="btn-small" onclick="alert('Смена имени будет доступна позже!')">Сменить имя</button>
             </div>
-
-            <!-- Блок ID -->
             <div class="profile-info-row">
                 <div>ID: <span id="display-id">...</span></div>
                 <button class="btn-small" onclick="alert('Смена ID будет доступна позже!')">Сменить ID</button>
@@ -212,29 +158,16 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
             }
         };
 
-       function loadMessages() {
-            if (!currentChatUser || !myUserId) return;
-            
-            fetch(`/api/messages?sender_id=${myUserId}&receiver_id=${currentChatUser}`)
-            .then(res => res.json())
-            .then(msgs => {
-                let box = document.getElementById('chat-messages');
-                box.innerHTML = '';
-                msgs.forEach(m => {
-                    let cls = (m.sender_id == myUserId) ? 'my' : 'their';
-                    box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
+        function register() {
+            var name = document.getElementById('reg-name').value.trim();
+            var id = document.getElementById('reg-id').value.trim();
+            var avatar = currentAvatar;
 
-        // Добавляем автозагрузку сообщений каждую секунду
-        setInterval(() => {
-            if (currentChatUser) {
-                loadMessages();
+            if (name === "" || id === "") {
+                alert("Пожалуйста, заполни оба поля!");
+                return;
             }
-        }, 1000);
-            // Отправляем данные на сервер (в базу данных)
+
             fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -245,7 +178,6 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    // Сохраняем ID пользователя, чтобы сайт знал, кто мы
                     localStorage.setItem('toni_user_id', data.user_id);
                     localStorage.setItem('toni_name', name);
                     localStorage.setItem('toni_id', id);
@@ -253,8 +185,7 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
                     showProfile(name, id, avatar);
                 }
             })
-            .catch(err => {
-                alert("Ошибка сервера. Попробуй еще раз.");
+            .catch(err => {alert("Ошибка сервера. Попробуй еще раз.");
                 console.error(err);
             });
         }
@@ -263,16 +194,14 @@ ption" onclick="selectAvatar(this, '😎')">😎</div>
             document.getElementById('register-screen').style.display = 'none';
             document.getElementById('profile-screen').classList.remove('hidden');
             
-            // Заполняем данные в кабинете
             document.getElementById('display-avatar').innerText = avatar;
-
-
-document.getElementById('display-avatar-text').innerText = avatar;
+            document.getElementById('display-avatar-text').innerText = avatar;
             document.getElementById('display-name').innerText = name;
             document.getElementById('display-id').innerText = "@" + id;
         }
 
         function changeAccount() {
+            localStorage.removeItem('toni_user_id');
             localStorage.removeItem('toni_name');
             localStorage.removeItem('toni_id');
             localStorage.removeItem('toni_avatar');
@@ -283,4 +212,4 @@ document.getElementById('display-avatar-text').innerText = avatar;
         }
     </script>
 </body>
-</html>-o
+</html>
