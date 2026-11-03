@@ -13,7 +13,6 @@
         
         .main-content { flex: 1; display: flex; background-color: #ffffff; }
         
-        /* Левая колонка */
         .chat-list { width: 320px; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; background: #f8f9fa; }
         .search-bar { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; gap: 5px; }
         .search-bar input { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; }
@@ -28,7 +27,6 @@
         .chat-item:hover { background: #e9ecef; }
         .chat-item.active { background: #cce5ff; border-left: 4px solid #007bff; }
         
-        /* Правая колонка */
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
         .chat-header { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px; background: #ffffff; }
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f0f4f8; }
@@ -42,8 +40,6 @@
         .chat-input-area button { padding: 0 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
         
         .empty-chat { display: flex; align-items: center; justify-content: center; height: 100%; color: #6c757d; font-size: 18px; }
-        
-        /* Стили для заметок */
         .note-desc { color: #6c757d; font-size: 13px; font-weight: normal; }
     </style>
 </head>
@@ -59,9 +55,9 @@
         <div class="chat-list">
             <div class="search-bar">
                 <input type="text" id="search-input" placeholder="Поиск..." onkeypress="if(event.key==='Enter') searchUsers()">
-                <buttonclick="searchUsers()">Найти</button>
+                <button type="button" onclick="searchUsers()">Найти</button>
             </div>
-            <div class="search-results" id="search-results"></div>
+            <div class=ch-results" id="search-results"></div>
             
             <div class="chats-container" id="chats-container">
                 <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
@@ -75,8 +71,7 @@
         </div>
 
         <div class="chat-window">
-            <!-- Убрали надпись "Выбери чат...", теперь тут просто пусто -->
-            <div class="empty-chat" id="empty-state"></div>
+            <div class="empty-chat" id="empty-state">Выбери чат или найди пользователя</div>
             
             <div id="active-chat" style="display: none; flex-direction: column; height: 100%;">
                 <div class="chat-header">
@@ -89,13 +84,13 @@
                 <div class="chat-messages" id="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="msg-input" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendMsg()">
-                    <button onclick="sendMsg()">➤</button>
+                    <button type="button" onclick="sendMsg()">➤</button>
                 </div>
             </div>
         </div>
     </div>
 
-   <script>
+    <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
         var currentChatId = null;
         var updateInterval = null;
@@ -116,41 +111,6 @@
 
             resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/api/search_users", true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-            
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var users = JSON.parse(xhr.responseText);
-                        resDiv.innerHTML = '';
-                        
-                        if (users.length === 0) {
-                            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Никого не найдено</div>';
-                            return;
-                        }
-                        
-                        for (var i = 0; i < users.length; i++) {
-                            var u = users[i];
-                            if (u.id !== myUserId) {
-                                var html = '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">';
-                                html += '<span style="font-size: 20px;">' + u.avatar + '</span>';
-                                html += '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
-                                resDiv.innerHTML += html;
-                            }
-                        }
-                    } else {
-                        resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
-                    }
-                }
-            };
-            
-            xhr.send(JSON.stringify({query: query}));
-        }
-
-            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
-
             fetch('/api/search_users', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -163,16 +123,14 @@
                     resDiv.innerHTML = '<div style="padding:10px; color:#888;">Никого не найдено</div>';
                     return;
                 }
-                users.forEach(function(u) {
+                for (var i = 0; i < users.length; i++) {
+                    var u = users[i];
                     if (u.id !== myUserId) {
-                        resDiv.innerHTML += `
-                            <div class="search-item" onclick="openChat(${u.id}, '${u.name}', '${u.avatar}')">
-                                <span style="font-size: 20px;">${u.avatar}</span> 
-                                <div><b>${u.name}</b> <small style="color:#6c757d;">@${u.username}</small></div>
-                            </div>
-                        `;
+                        resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
+                            '<span style="font-size: 20px;">' + u.avatar + '</span>' +
+                            '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
                     }
-                });
+                }
             })
             .catch(function(err) {
                 resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
@@ -199,10 +157,8 @@
             updateInterval = setInterval(loadMessages, 2000);
         }
 
-      function loadMessages() {
+        function loadMessages() {
             if (currentChatId === null) return;
-            
-            // Если это заметки (0), то ищем сообщения для себя любимого
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
@@ -212,11 +168,12 @@
                 var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
                 box.innerHTML = '';
-                msgs.forEach(function(m) {
+                for (var i = 0; i < msgs.length; i++) {
+                    var m = msgs[i];
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
                     box.innerHTML += '<div class="msg ' + cls + '">' + m.text + '</div>';
-                });
+                }
                 
                 if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
@@ -226,7 +183,6 @@
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
             
-            // Если это заметки, отправляем самому себе
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
@@ -240,4 +196,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
