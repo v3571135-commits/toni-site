@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>TONI - Отзывы</title>
+    <style>
+        body { 
+            margin: 0; font-family: 'Arial', sans-serif; 
+            background-color: #CC5500; color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh;
+        }
+        .container { 
+            background-color: #000; 
+            width: 95%; 
+            max-width: 800px; /* Широкое окно */
+            padding: 40px; 
+            border: 2px solid #E65C00; 
+            border-radius: 10px; 
+            margin-top: 30px; 
+            margin-bottom: 30px;
+            box-sizing: border-box; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 { color: #E65C00; text-align: center; margin-top: 0;}
+        
+        /* Форма добавления */
+        .form-section {
+            background: #1A1A1A; padding: 20px; border-radius: 10px;
+            border: 1px solid #333; margin-bottom: 30px;
+        }
+        .stars { 
+            font-size: 40px; color: #555; cursor: pointer; 
+            text-align: center; margin-bottom: 5px; user-select: none;
+        }
+        .star { transition: color 0.2s; }
+        .star:hover { color: #E65C00; } /* Подсветка при наведении */
+        .star.active { color: #E65C00; } /* Подсветка при клике */
+        .rating-text { text-align: center; color: #ccc; margin-bottom: 15px; font-size: 16px;}
+        .star.active { color: #E65C00; }
+        
+        textarea { 
+            width: 100%; height: 80px; background-color: #000; 
+            border: 1px solid #E65C00; color: white; padding: 10px; 
+            border-radius: 5px; box-sizing: border-box; resize: none; 
+            font-family: Arial; margin-bottom: 15px;
+        }
+        .btn { 
+            width: 100%; padding: 15px; background-color: #E65C00; 
+            color: black; border: none; border-radius: 5px; 
+            font-size: 18px; font-weight: bold; cursor: pointer; 
+        }
+        .btn:hover { background-color: #ff7700; }
+
+        /* Список отзывов */
+        .reviews-list { display: flex; flex-direction: column; gap: 15px; }
+        .review-card {
+            background-color: #1A1A1A; border-left: 5px solid #E65C00;
+            padding: 15px; border-radius: 5px;
+        }
+        .review-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px;
+        }
+        .review-stars { color: #E65C00; font-size: 20px; }
+        .review-actions button {
+            background: transparent; border: none; color: #888; 
+            cursor: pointer; font-size: 14px; margin-left: 10px;
+        }
+        .review-actions button:hover { color: #E65C00; }
+        .review-text { margin: 0; font-size: 16px; line-height: 1.5; }
+        
+        .no-reviews { text-align: center; color: #888; font-style: italic; padding: 20px;}
+        
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #E65C00; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Отзывы о Тони</h1>
+        
+        <!-- Форма -->
+        <div class="form-section">
+            <div class="stars" id="star-container">
+                <span onclick="setRating(1)">★</span>
+                <span onclick="setRating(2)">★</span>
+                <span onclick="setRating(3)">★</span>
+                <span onclick="setRating(4)">★</span>
+                <span onclick="setRating(5)">★</span>
+            </div>
+            <div class="rating-text" id="rating-text">Поставь оценку:</div>
+            <textarea id="review-text" placeholder="Напиши, что тебе нравится в Тони..."></textarea>
+            <button class="btn" id="submit-btn" onclick="addReview()">Оставить отзыв</button>
+        </div>
+
+        <!-- Список -->
+        <h2 style="color: #E65C00; font-size: 22px; margin-bottom: 15px;">Мнения пользователей:</h2>
+        <div class="reviews-list" id="reviews-list">
+            <!-- Сюда будут добавляться отзывы -->
+        </div>
+
+        <a href="/" class="back-link">← Вернуться в чат</a>
+    </div>
+
+    <script>
+        let currentRating = 0;
+        let editingIndex = -1; // -1 значит мы создаем новый отзыв
+
+        // Установка звезд
+       function setRating(n) {
+            currentRating = n;
+            let stars = document.querySelectorAll('#star-container span');
+            for (let i = 0; i < stars.length; i++) {
+                if (i < n) stars[i].classList.add('active');
+                else stars[i].classList.remove('active');
+            }
+            
+            // Обновляем текст под звездами
+            let textEl = document.getElementById('rating-text');
+            if (n > 0) {
+                textEl.innerText = "Твоя оценка: " + n + " из 5";
+            } else {
+                textEl.innerText = "Поставь оценку:";
+            }
+        }
+
+        // Показ отзывов
+        function renderReviews() {
+            let list = document.getElementById('reviews-list');
+            let saved = localStorage.getItem('toni_reviews');
+            let reviews = saved ? JSON.parse(saved) : [];
+
+            list.innerHTML = ''; // Очищаем список
+
+            if (reviews.length === 0) {
+                list.innerHTML = '<div class="no-reviews">Отзывов пока нет. Будь первым!</div>';
+                return;
+            }
+
+            reviews.forEach((review, index) => {
+                let starsHTML = '';
+                for(let i=0; i<5; i++) {
+                    starsHTML += (i < review.rating) ? '★' : '☆';
+                }
+
+                let card = document.createElement('div');
+                card.className = 'review-card';
+                card.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-stars">${starsHTML}</div>
+                        <div class="review-actions">
+                            <button onclick="editReview(${index})">Редактировать</button>
+                            <button onclick="deleteReview(${index})" style="color: #ff4444;">Удалить</button>
+                        </div>
+                    </div>
+                    <p class="review-text">${review.text}</p>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Добавление или сохранение изменений
+        function addReview() {
+            let text = document.getElementById('review-text').value.trim();
+            if (!text) { alert("Напиши текст отзыва!"); return; }
+            if (currentRating === 0) { alert("Поставь оценку (звезды)!"); return; }
+
+            let saved = localStorage.getItem('toni_reviews');
+            let reviews = saved ? JSON.parse(saved) : [];
+
+            if (editingIndex > -1) {
+                // Редактируем
+                reviews[editingIndex] = { rating: currentRating, text: text };
+                editingIndex = -1;
+                document.getElementById('submit-btn').innerText = "Оставить отзыв";
+            } else {
+                // Добавляем новый
+                reviews.push({ rating: currentRating, text: text });
+            }
+
+            localStorage.setItem('toni_reviews', JSON.stringify(reviews));
+            
+            // Очищаем форму
+            document.getElementById('review-text').value = '';
+            setRating(0);
+            renderReviews();
+        }
+
+        // Удаление
+        function deleteReview(index) {
+            if (!confirm("Точно удалить этот отзыв?")) return;
+            let saved = localStorage.getItem('toni_reviews');
+            let reviews = saved ? JSON.parse(saved) : [];
+            reviews.splice(index, 1);
+            localStorage.setItem('toni_reviews', JSON.stringify(reviews));
+            renderReviews();
+        }
+
+        // Редактирование
+        function editReview(index) {
+            let saved = localStorage.getItem('toni_reviews');
+            let reviews = saved ? JSON.parse(saved) : [];
+            let rev = reviews[index];
+
+            document.getElementById('review-text').value = rev.text;
+            setRating(rev.rating);
+            editingIndex = index;
+            
+            document.getElementById('submit-btn').innerText = "Сохранить изменения";
+            window.scrollTo(0, 0); // Прокрутка наверх к форме
+        }
+
+        // При загрузке страницы показываем отзывы
+        window.onload = renderReviews;
+    </script>
+</body>
+</html>

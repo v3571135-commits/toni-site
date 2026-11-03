@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>TONI - История</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #CC5500;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Убираем прокрутку всего окна браузера */
+        }
+        .header {
+            width: 100%;
+            background-color: #000;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #E65C00;
+            box-sizing: border-box;
+        }
+        .header a {
+            color: #E65C00;
+            text-decoration: none;
+            font-size: 24px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .header h1 { margin: 0; font-size: 20px; color: #E65C00;}
+        
+        .content {
+            background-color: #000;
+            width: 95%; /* Сделали окно шире */
+            max-width: 800px;
+            margin-top: 20px;
+            padding: 30px;
+            border: 2px solid #E65C00;
+            border-radius: 10px;
+            height: 80vh; /* Увеличили высоту окна */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .history-text {
+            flex: 1;
+            overflow-y: auto; /* Оставляем прокрутку только для текста, если он не влезет */
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #ddd;
+            padding-right: 10px;
+        }
+        .history-text p { margin-bottom: 20px; }
+        
+        /* Убираем стандартный скроллбар, чтобы не было "рамочки" */
+        .history-text::-webkit-scrollbar { width: 8px; }
+        .history-text::-webkit-scrollbar-track { background: #1A1A1A; }
+        .history-text::-webkit-scrollbar-thumb { background: #E65C00; border-radius: 4px; }
+
+        .feedback-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        .btn-icon {
+            background: none;
+            border: 2px solid #E65C00;
+            color: #E65C00;
+            font-size: 24px;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        .btn-icon:hover { background-color: #E65C00; color: black; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="/">←</a>
+        <h1>История создания TONI</h1>
+    </div>
+
+    <div class="content">
+        <div class="history-text">
+            <p><b>Глава 1: Рождение идеи.</b> Всё началось с желания создать умного помощника, который не просто отвечает на вопросы, но и понимает контекст.</p>
+            <p><b>Глава 2: Выбор технологий.</b> Тони был собран на Python с использованием Flask для сервера и HTML/CSS для интерфейса. Нейросеть было решено подключать через API, чтобы обеспечить высокую скорость ответов.</p>
+            <p><b>Глава 3: Дизайн.</b> Черно-оранжевая цветовая гамма была выбрана не случайно. Оранжевый символизирует энергию и креативность, а черный — технологичность и глубину.</p>
+            <p><b>Глава 4: Развитие.</b> Сейчас мы работаем над созданием личного кабинета, системы рейтингов и чатов между пользователями. Впереди — много интересного!</p>
+        </div>
+
+        <div class="feedback-buttons">
+            <button class="btn-icon" onclick="alert('Спасибо за лайк!')">👍 <span id="likes">12</span></button>
+            <button class="btn-icon" onclick="alert('Мы учтем ваше мнение!')">👎 <span id="dislikes">2</span></button>
+        </div>
+    </div>
+
+</body>
+</html>
