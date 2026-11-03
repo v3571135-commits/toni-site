@@ -2,256 +2,154 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>TONI - Рекомендации</title>
+    <title>TONI - Мессенджер</title>
     <style>
-        body { 
-            margin: 0; font-family: 'Arial', sans-serif; 
-            background-color: #CC5500; color: white; 
-            display: flex; height: 100vh; overflow: hidden;
-        }
-        
-        /* Левое меню */
-        .sidebar {
-            width: 220px; background-color: #000; padding: 20px 10px;
-            display: flex; flex-direction: column; gap: 15px;
-            border-right: 2px solid #E65C00; box-sizing: border-box;
-        }
-        .sidebar a {
-            color: #E65C00; text-decoration: none; background-color: #1A1A1A;
-            padding: 12px; border-radius: 20px; text-align: center;
-            font-weight: bold; border: 1px solid #333; transition: 0.3s;
-        }
+        body { margin: 0; font-family: 'Arial', sans-serif; background-color: #CC5500; color: white; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 220px; background-color: #000; padding: 20px 10px; display: flex; flex-direction: column; gap: 15px; border-right: 2px solid #E65C00; box-sizing: border-box; }
+        .sidebar a { color: #E65C00; text-decoration: none; background-color: #1A1A1A; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #333; transition: 0.3s; }
         .sidebar a:hover { background-color: #E65C00; color: black; }
-
-        /* Основная часть */
-        .main-content {
-            flex: 1; padding: 20px; display: flex; flex-direction: column;
-            align-items: center; box-sizing: border-box; overflow-y: auto;
-        }
-        .window {
-            background-color: #000; width: 98%; min-height: 95vh;
-            border: 2px solid #E65C00; border-radius: 10px;
-            padding: 30px; box-sizing: border-box;
-            display: flex; flex-direction: column;
-        }
+        .main-content { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; overflow-y: auto; }
+        .window { background-color: #000; width: 98%; min-height: 95vh; border: 2px solid #E65C00; border-radius: 10px; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; }
         h1 { color: #E65C00; text-align: center; margin-top: 0; }
-
-        /* Поиск */
-        .search-bar { display: flex; gap: 10px; margin-bottom: 30px; }
-        .search-bar input {
-            flex: 1; padding: 15px; background-color: #1A1A1A;
-            border: 1px solid #E65C00; color: white; border-radius: 5px; font-size: 16px;
-        }
-        .search-bar button {
-            padding: 0 25px; background-color: #E65C00; color: black;
-            border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
-        }
-
-        .section-title { color: #E65C00; font-size: 20px; margin-bottom: 15px; }
         
-        /* Пунктирное окно (полупрозрачное) */
-        .empty-state {
-            text-align: center; color: rgba(255, 255, 255, 0.4);
-            padding: 40px; border: 2px dashed rgba(230, 92, 0, 0.5); 
-            border-radius: 10px; font-style: italic; cursor: pointer; transition: 0.3s;
-            background: rgba(26, 26, 26, 0.5);
-        }
-        .empty-state:hover { 
-            background: rgba(51, 51, 51, 0.8); 
-            color: rgba(255, 255, 255, 0.8); 
-            border-color: #E65C00;
-        }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-bar input { flex: 1; padding: 15px; background-color: #1A1A1A; border: 1px solid #E65C00; color: white; border-radius: 5px; font-size: 16px; }
+        .search-bar button { padding: 0 25px; background-color: #E65C00; color: black; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-        /* Форма создания анкеты (скрыта по умолчанию) */
-        .create-form {
-            display: none; /* Скрыто */
-            background: #111; border: 1px solid #E65C00; border-radius: 10px;
-            padding: 20px; margin-bottom: 20px;
-        }
-        .create-form label { display: block; color: #ccc; margin-bottom: 5px; font-size: 14px;}
-        .create-form input, .create-form textarea {
-            width: 100%; background: #000; border: 1px solid #333;
-            color: white; padding: 12px; border-radius: 5px; margin-bottom: 15px; box-sizing: border-box;
-        }
-        .create-form input:focus, .create-form textarea:focus { border-color: #E65C00; outline: none; }
-        .create-form input { font-size: 18px; font-weight: bold; }
-        .create-form textarea { height: 80px; resize: none; }
-        
-        .form-buttons { display: flex; gap: 10px; }
-        .form-buttons button {
-            flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
-        }
-        .btn-publish { background: #E65C00; color: black; }
-        .btn-publish:hover { background: #ff7700; }
-        .btn-cancel { background: #333; color: white; }
-        .btn-cancel:hover { background: #555; }
-
-        /* Карточка анкеты */
-        .user-card {
-            background: #1A1A1A; border-left: 5px solid #E65C00;
-            padding: 15px; border-radius: 5px; display: flex; gap: 15px;
-            margin-bottom: 15px; cursor: pointer; transition: 0.2s;
-        }
-        .user-card:hover { background: #2A2A2A; }
-        r-avatar { width: 60px; height: 60px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0;}
-        .user-info h3 { margin: 0 0 5px 0; color: #ccc; font-size: 16px; }
-        .user-theme { font-size: 20px; font-weight: bold; color: #E65C00; margin-bottom: 5px; }
-        .user-desc { margin: 0; color: #aaa; font-size: 14px; }
-        /* Адаптивность для телефонов */
-        max-width: 768px {
-            body {
-                flex-direction: column; /* Меняем расположение с горизонтального на вертикальное */
-                height: auto;
-                overflow-y: auto;
-            }
-            .sidebar {
-                width: 100%; /* Меню на всю ширину */
-                border-right: none;
-                border-bottom: 2px solid #E65C00;
-                flex-direction: row; /* Кнопки в ряд */
-                overflow-x: auto; /* Если не влезут, можно скроллить вбок */
-                padding: 10px;
-            }
-            .sidebar a.menu-link {
-                width: auto;
-                white-space: nowrap;
-                font-size: 12px; /* Чуть уменьшаем шрифт */
-                padding: 8px 15px;
-            }
-            .main-content {
-                padding: 10px;
-            }
-            .window, .robot-section, .chat-container, .header-box {
-                width: 100%; /* Блоки на всю ширину экрана */
-                margin-bottom: 15px;
-            }
-            .robot-section {
-                flex-direction: column; /* Робота и кнопки ставим друг под другом */
-                gap: 15px;
-            }
-            .chat-container {
-                height: 400px; /* Фиксируем высоту чата для телефона */
-            }
-        }
+        .chat-area { display: none; flex-direction: column; flex: 1; }
+        .chat-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 2px solid #E65C00; margin-bottom: 15px; }
+        .chat-messages { flex: 1; background: #111; border: 1px solid #333; border-radius: 5px; padding: 15px; margin-bottom: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 10px; max-width: 70%; }
+        .msg.my { background-color: #E65C00; color: black; align-self: flex-end; }
+        .msg.their { background-color: #333; color: white; align-self: flex-start; }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 15px; background: #1A1A1A; border: 1px solid #E65C00; color: white; border-radius: 5px; }
+        .chat-input-area button { padding: 0 25px; background: #E65C00; color: black; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
-        <a href="#">💬 Мои чаты</a>
-        <a href="#">🎮 Мини-игры</a>
         <a href="/">← Назад в Тони</a>
+        <a href="#" onclick="logout()">Выйти</a>
     </div>
 
     <div class="main-content">
         <div class="window">
-            <h1>Рекомендации</h1>
-            
-            <div class="search-bar">
-                <input type="text" placeholder="Найти пользователя по ID или имени...">
-                <button>Найти</button>
+            <div id="search-view">
+                <h1>Поиск пользователей</h1>
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Введи ID или Имя...">
+                    <button onclick="searchUser()">Найти</button>
+                </div>
+                <div id="search-result"></div>
             </div>
 
-            <div id="recommendations-container">
-                <!-- 1. Пунктирное окно (видно, если нет анкеты) -->
-                <div class="empty-state" id="empty-box" onclick="showForm()">
-                    Здесь пока пусто.<b
-
-                   Нажми сюда, чтобы добавить свою анкету и найти друзей!
-                </div>
-
-                <!-- 2. Форма создания (скрыта изначально) -->
-                <div class="create-form" id="form-box">
-                    <label>Тема (будет видна всем)</label>
-                    <input type="text" id="profile-theme" placeholder="Например: Ищу напарника по физике">
-                    
-                    <label>Описание (подробности)</label>
-                    <textarea id="profile-desc" placeholder="Расскажи чуть подробнее..."></textarea>
-                    
-                    <div class="form-buttons">
-                        <button class="btn-publish" onclick="saveProfile()">Опубликовать</button>
-                        <button class="btn-cancel" onclick="hideForm()">Отмена</button>
+            <div id="chat-view" class="chat-area">
+                <button onclick="backToSearch()" style="background: none; border: none; color: #E65C00; cursor: pointer; text-align: left; margin-bottom: 10px;">← Назад к поиску</button>
+                <div class="chat-header">
+                    <div style="font-size: 30px;" id="chat-avatar">👤</div>
+                    <div>
+                        <h2 id="chat-name" style="margin:0; color:#E65C00;">Имя</h2>
+                        <p id="chat-username" style="margin:0; color:#888;">@id</p>
                     </div>
                 </div>
-            </div>
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="msg-input" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendMsg()">
+                    <button onclick="sendMsg()">➤</button>
+                </div>
+            <
+
+
+div>
         </div>
     </div>
 
     <script>
-        // Функция, которая сразу рисует форму вместо пунктира
-        function showForm() {
-            document.getElementById('recommendations-container').innerHTML = `
-                <div class="create-form" style="display: block;">
-                    <label>Тема (будет видна всем)</label>
-                    <input type="text" id="profile-theme" placeholder="Например: Ищу напарника по физике">
-                    
-                    <label>Описание (подробности)</label>
-                    <textarea id="profile-desc" placeholder="Расскажи чуть подробнее..."></textarea>
-                    
-                    <div class="form-buttons">
-                        <button class="btn-publish" onclick="saveProfile()">Опубликовать</button>
-                        <button class="btn-cancel" onclick="renderProfiles()">Отмена</button>
-                    </div>
-                </div>
-            `;
+        let currentChatUser = null;
+        let myUserId = localStorage.getItem('toni_user_id'); 
+
+        if (!myUserId) {
+            alert("Сначала зарегистрируйся в профиле!");
+            window.location.href = "/profile";
         }
 
-        // Сохранение
-        function saveProfile() {
-            let theme = document.getElementById('profile-theme').value.trim();
-            let desc = document.getElementById('profile-desc').value.trim();
-            
-            if (!theme) { alert("Придумай тему для общения!"); return; }
+        function searchUser() {
+            let query = document.getElementById('search-input').value.trim();
+            if(!query) return;
 
-            let name = localStorage.getItem('toni_name') || 'Пользователь';
-            let id = localStorage.getItem('toni_id') || 'unknown';
-            let avatar = localStorage.getItem('toni_avatar') || '👤';
-
-            let profileData = { name: name, id: id, avatar: avatar, theme: theme, desc: desc };
-            localStorage.setItem('toni_my_profile_anketa', JSON.stringify(profileData));
-
-            renderProfiles();
-        }
-
-        // Отрисовка (проверяем, есть ли анкета)
-        function renderProfiles() {
-            let container = document.getElementById('recommendations-container');
-            let saved = localStorage.getItem('toni_my_profile_anketa');
-
-            if (saved) {
-                let p = JSON.parse(saved);
-                container.innerHTML = `
-                    <div class="user-card" onclick="alert('Переход в чат будет позже!')">
-                        <div class="user-avatar">${p.avatar}</div>
-                        <div class="user-info">
-                            <h3>${p.name} <span style="font-size: 12px;">(@${p.id})</span></h3>
-                            <div class="user-theme">${p.theme}</div>
-                            <p class="user-desc">${p.desc}</p>
+            fetch('/api/search', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query: query})
+            })
+            .then(res => res.json())
+            .then(data => {
+                let resDiv = document.getElementById('search-result');
+                if (data.error) {
+                    resDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+                } else {
+                    resDiv.innerHTML = `
+                        <div class="user-card" style="background:#1A1A1A; padding:15px; border-radius:5px; display:flex; gap:15px; cursor:pointer;" onclick="openChat(${data.id}, '${data.name}', '${data.username}', '${data.avatar}')">
+                            <div style="font-size:30px;">${data.avatar}</div>
+                            <div>
+                                <h3 style="margin:0; color:#E65C00;">${data.name}</h3>
+                                <p style="margin:0; color:#888;">@${data.username}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button onclick="deleteProfile()" style="background: transparent; border: 1px solid #ff4444; color: #ff4444; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Удалить мою анкету</button>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="empty-state" onclick="showForm()">
-                        Здесь пока пусто.<
-
-                        Нажми сюда, чтобы добавить свою анкету и найти друзей!
-                    </div>
-                `;
-            }
+                    `;
+                }
+            });
         }
 
-        function deleteProfile() {
-            if(!confirm("Удалить свою анкету?")) return;
-            localStorage.removeItem('toni_my_profile_anketa');
-            renderProfiles();
+        function openChat(id, name, username, avatar) {
+            currentChatUser = id;
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('chat-view').style.display = 'flex';
+            document.getElementById('chat-avatar').innerText = avatar;
+            document.getElementById('chat-name').innerText = name;
+            document.getElementById('chat-username').innerText = "@" + username;
+            loadMessages();
         }
 
-        // Запуск при загрузке
-        window.onload = renderProfiles;
+        function backToSearch() {
+            document.getElementById('chat-view').style.display = 'none';
+            document.getElementById('search-view').style.display = 'block';
+            currentChatUser = null;
+        }
+
+        function loadMessages() {
+            fetch(`/api/messages?sender_id=${myUserId}&receiver_id=${currentChatUser}`)
+            .then(res => res.json())
+            .then(msgs => {
+                let box = document.getElementById('chat-messages');
+                box.innerHTML = '';
+                msgs.forEach(m => {
+                    let cls = (m.sender_id == myUserId) ? 'my' : 'their';
+                    box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function sendMsg() {
+            let text = document.getElementById('msg-input').value.trim();
+            if(!text || !currentChatUser) return;
+
+            fetch('/api/messages', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({sender_id: myUserId, receiver_id: currentChatUser, text: text})
+            }).then(() => {
+                document.getElementById('msg-input').value = '';
+                loadMessages();
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('toni_user_id');
+            window.location.href = "/profile";
+        }
     </script>
 </body>
-</html>.use
+</html>/
