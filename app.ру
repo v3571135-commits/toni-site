@@ -80,12 +80,14 @@ def register():
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Этот ID уже занят!'})
     
+    # Создаем пользователя (пока без отправки почты)
     new_user = User(
         username=data['username'], name=data['name'], email=data['email'], 
         password=data['password'], avatar=data['avatar']
     )
     db.session.add(new_user)
     db.session.commit()
+    
     return jsonify({'status': 'ok', 'user_id': new_user.id})
 
 @app.route('/api/search_users', methods=['POST'])
