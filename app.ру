@@ -136,6 +136,43 @@ def shop(): return render_template('shop.html')
 def posts(): return render_template('posts.html')
 @app.route('/games')
 def games(): return render_template('games.html')
+# --- API ДЛЯ ЧАТОВ ---
 
+# Получить все сообщения между двумя пользователями
+@app.route('/api/messages/<int:user1>/<int:user2>', methods=['GET'])
+def get_chat_history(user1, user2):
+    msgs = Message.query.filter(
+        ((Message.sender_id == user1) & (Message.receiver_id == user2)) |
+        ((Message.sender_id == user2) & (Message.receiver_id == user1))
+    ).order_by(Message.id.asc()).all()
+    
+    return jsonify([{
+        'id': m.id,
+        'sender_id': m.sender_id,
+        'text': m.text
+    } for m in msgs])
+
+# Отправить сообщение
+@app.route('/api/messages/send', methods=['POST'])
+def send_chat_message():
+    data = request.json
+    new_msg = Message(
+        sender_id=data['sender_id'], 
+        receiver_id=data['receiver_id'], 
+        text=data['text']
+    )
+    db.session.add(new_msg)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+# Удалить сообщение
+@app.route('/api/messages/delete/<int:msg_id>', methods=['DELETE'])
+def delete_message(msg_id):
+    msg = db.session.get(Message, msg_id)
+    if msg:
+        db.session.delete(msg)
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    return jsonify({'error': 'Сообщение не найдено'})
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
