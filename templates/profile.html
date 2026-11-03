@@ -128,7 +128,7 @@
             fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name: name, username: id, avatar: avatar})
+                body: JSON.stringify({name: name, username: id, email: email, password: "123", avatar: avatar}) // <-- ДОБАВИТЬ email: email и password: "123"
             })
             .then(res => res.json())
             .then(data => {
