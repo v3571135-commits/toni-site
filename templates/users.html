@@ -148,7 +148,7 @@
         }
 
         // Загрузка списка чатов (кого мы искали и кому писали)
-        function loadChatList() {
+      function loadChatList() {
             var savedChats = localStorage.getItem('toni_active_chats');
             var chats = savedChats ? JSON.parse(savedChats) : [];
             var listDiv = document.getElementById('active-chats-list');
@@ -156,19 +156,14 @@
 
             if (chats.length === 0) return;
 
-            chats.forEach(function(chat) {
-                listDiv.innerHTML += `
-                    <div class="chat-item" onclick="openChat(${chat.id}, '${chat.name}', '${chat.avatar}')">
-                        <div style="font-size: 24px;">${chat.avatar}</div>
-                        <div>
-                            <div style="font-weight: bold; color: #333;">${chat.name}</div>
-                            <div class="note-desc">@${chat.username}</div>
-                        </div>
-                    </div>
-                `;
-            });
+            for (var i = 0; i < chats.length; i++) {
+                var chat = chats[i];
+                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
+                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
+                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
+                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
+            }
         }
-
         // Поиск пользователей
         function searchUsers() {
             var query = document.getElementById('search-input').value.trim();
