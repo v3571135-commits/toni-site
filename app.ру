@@ -148,12 +148,12 @@ def ask():
   user_text = data.get('text', '').lower().strip()
   
   if user_text in my_dict:
-  return jsonify({'answer': my_dict[user_text]})
+    return jsonify({'answer': my_dict[user_text]})
   
   # Поиск по ключевым словам (если вопрос длинный)
   for key in my_dict:
   if key in user_text:
-  return jsonify({'answer': my_dict[key]})
+    return jsonify({'answer': my_dict[key]})
   
   return jsonify({'answer': "Хм, я пока не знаю, что на это ответить. Я работаю на словаре. Попробуй спросить про 'помощь', 'физику' или 'паука'."})
 
@@ -161,7 +161,7 @@ def ask():
   def register():
   data = request.json
   if User.query.filter_by(username=data['username']).first():
-  return jsonify({'error': 'Этот ID уже занят!'})
+    return jsonify({'error': 'Этот ID уже занят!'})
   new_user = User(username=data['username'], name=data['name'], email=data['email'], password=data.get('password', '123'), avatar=data['avatar'])
   db.session.add(new_user)
   db.session.commit()
@@ -209,7 +209,7 @@ def ask():
   for uid in chat_ids:
   user = db.session.get(User, uid)
   if user:
-  unread = Message.query.filter_by(sender_id=uid, receiver_id=my_id, is_read=False).count() > 0
+    unread = Message.query.filter_by(sender_id=uid, receiver_id=my_id, is_read=False).count() > 0
   result.append({'id': user.id, 'name': user.name, 'username': user.username, 'avatar': user.avatar, 'unread': unread})
   return jsonify(result)
 
@@ -227,4 +227,4 @@ def reviews(): return render_template('reviews.html')
 def users(): return render_template('users.html')
 
 if __name__ == '__main__':
-app.run(host='0.0.0.0', port=8080)
+  app.run(host='0.0.0.0', port=8080)
