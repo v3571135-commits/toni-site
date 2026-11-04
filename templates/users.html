@@ -8,7 +8,7 @@
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; height: 100vh; overflow: hidden; }
         
         .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #007bff; flex-shrink: 0; }
-        .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; transition: 0.3s; cursor: pointer; }
+        .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; transition: 0.3s; cursor: pointer; position: relative;}
         .sidebar a:hover { background-color: #007bff; color: white; }
         
         .main-content { flex: 1; display: flex; background-color: #ffffff; }
@@ -31,10 +31,7 @@
         .chat-name { font-weight: bold; color: #333; }
         .chat-desc { color: #6c757d; font-size: 13px; }
 
-        .unread-badge { 
-            width: 12px; height: 12px; background-color: #007bff; 
-            border-radius: 50%; display: none; 
-        }
+        .unread-badge { width: 12px; height: 12px; background-color: #007bff; border-radius: 50%; display: none; }
         .unread-badge.show { display: block; }
         
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
@@ -55,16 +52,16 @@
 <body>
     <div class="sidebar">
         <a href="/profile">👤 Профиль</a>
-        <a href="/users" style="background-color: #007bff; color: white; position: relative;">
+        <a href="/users" style="background-color: #007bff; color: white;">
             💬 Мои чаты
-            <span id="menu-unread-badge" style="display: none; position: absolute; top: 8px; right: 15px; width: 12px; height: 12px; background: red; border-radius: 50%; border: 2px solid white;"></span>
+            <span id="menu-unread-badge" style="display: none; position: absolute; top: 8px; right: 15px; width: 12px; height: 12px; background: red; border-radius: 50%; border:2px solid white;"></span>
         </a>
         <a onclick="openChat(0, 'Заметки', '🔒')">📝 Заметки</a>
         <a href="/">← На главную</a>
     </div>
 
     <div class="main-content">
-        <div class="chatt">
+        <div class="chat-list">
             <div class="search-bar">
                 <input type="text" id="search-input" placeholder="Поиск..." onkeypress="if(event.key==='Enter') searchUsers()">
                 <button type="button" onclick="searchUsers()">Найти</button>
@@ -105,7 +102,107 @@
     </div>
 
     <script>
-        var lastMessageId = 0; // Запоминаем ID последнего сообщения
+        var myUserId = parseInt(localStorage.getItem('toni_user_id'));
+        var currentChatId = null;
+        var lastMessageId = 0;
+
+        if (!myUserId) {
+            alert("Сначала зарегистрируйся в профиле!");
+            window.location.href = "/profile";
+        }
+
+        function playNotificationSound() {
+            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
+            if (isNotifOn) {
+                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
+                var audio = new Audio('/static/' + sound);
+                audio.play().catch(function(e) { console.log("Звук не найден"); });
+            }
+        }
+
+        function loadChatList() {
+            fetch('/api/chats/' + myUserId)
+            .then(function(res) { return res.json(); })
+            .then(function(chats) {
+                var listDiv = document.getElementById('active-chats-list');
+                var hasUnread = false;
+                listDiv.innerHTML = '';
+
+                for (var i = 0; i < chats.length; i++) {
+                    var c = chats[i];
+                    if (c.unread) hasUnread = true;
+                    var unreadClass = c.unread ? 'show' : '';
+                    var activeClass = (currentChatId === c.id) ? 'active' : '';
+                    
+                    listDiv.innerHTML += '<div class="chat-item ' + activeClass + '" onclick="openChat(' + c.id + ', \'' + c.name + '\', \'' + c.avatar + '\')">' +
+                        '<div style="font-size: 24px;">' + c.avatar + '</div>' +
+                        '<div class="chat-info"><div class="chat-name">' + c.name + '</div>' +
+                        '<div class="chat-desc">@' + c.username + '</div></div>' +
+                        '<div class="unread-badge ' + unreadClass + '"></div></div>';
+                }
+
+                var menuBadge = document.getElementById('menu-unread-badge');
+                if (menuBadge) {
+                    menuBadge.style.display = hasUnread ? 'block' : 'none';
+                }
+            });
+        }
+
+        function searchUsers() {
+            var query = document.getElementById('search-input').value.trim();
+            var resDiv = document.getElementById('search-results');
+            if (query.length < 2) return;
+
+            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
+
+            fetch('/api/search_users', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query: query})
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(users) {
+                resDiv.innerHTML = '';
+                if (users.length === 0) {
+                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Не найден</div>';
+                    return;
+                }
+                for (var i = 0; i < users.length; i++) {
+                    var u = users[i];
+                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
+                        '<span style="font-size: 20px;">' + u.avatar + '</span>' +
+                        '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
+                }
+            });
+        }
+
+        function openChat(id, name, avatar) {
+            currentChatId = id;
+            lastMessageId = 0;
+            
+            document.getElementById('search-results').innerHTML = '';
+            document.getElementById('search-input').value = '';
+            
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('active-chat').style.display = 'flex';
+            
+            document.getElementById('header-avatar').innerText = avatar;
+            document.getElementById('header-name').innerText = name;
+            document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
+            
+            if (id !== 0) {
+                fetch('/api/messages/read', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({from_id: id, my_id: myUserId})
+                }).then(function() { loadChatList(); });
+            }
+
+            loadMessages();
+            
+            if (window.chatInterval) clearInterval(window.chatInterval);
+            window.chatInterval = setInterval(loadMessages, 2000);
+        }
 
         function loadMessages() {
             if (currentChatId === null) return;
@@ -118,36 +215,60 @@
                 var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
                 box.innerHTML = '';
-                
                 for (var i = 0; i < msgs.length; i++) {
                     var m = msgs[i];
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
                     
-                    // Если сообщение новое и не от нас — играем звук!
-                    if (m.id > lastMessageId && !isMine) {
+                    if (m.id > lastMessageId && !isMine && lastMessageId !== 0) {
                         playNotificationSound();
                     }
+                    if (m.id > lastMessageId) lastMessageId = m.id;
                     
                     var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
-                    
-                    // Запоминаем ID последнего сообщения
-                    if (m.id > lastMessageId) lastMessageId = m.id;
                 }
                 
                 if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
         }
 
-        function playNotificationSound() {
-            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
-            if (isNotifOn) {
-                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
-                var audio = new Audio('/static/' + sound);
-                audio.play().catch(e => console.log("Звук не найден"));
-            }
+        function checkForNewMessages() {
+            fetch('/api/chats/' + myUserId)
+            .then(function(res) { return res.json(); })
+            .then(function(chats) {
+                loadChatList();
+
+var hasAnyUnread = false;
+                for (var i = 0; i < chats.length; i++) {
+                    if (chats[i].unread) hasAnyUnread = true;
+                }
+                if (hasAnyUnread && currentChatId === null) {
+                    playNotificationSound();
+                }
+            });
         }
+
+        function sendMsg() {
+            var text = document.getElementById('msg-input').value.trim();
+            if (!text || currentChatId === null) return;
+            var targetId = (currentChatId === 0) ? myUserId : currentChatId;
+
+            fetch('/api/messages/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
+            }).then(function() {
+                document.getElementById('msg-input').value = '';
+                loadMessages();
+                loadChatList(); 
+            });
+        }
+
+        window.onload = function() {
+            loadChatList();
+            setInterval(checkForNewMessages, 3000);
+        };
     </script>
 </body>
 </html>
