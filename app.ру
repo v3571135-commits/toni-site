@@ -374,8 +374,21 @@ def get_chats(my_id):
     for uid in chat_ids:
         user = db.session.get(User, uid)
         if user:
-            unread = Message.query.filter_by(sender_id=uid, receiver_id=my_id, is_read=False).count() > 0
-            result.append({'id': user.id, 'name': user.name, 'username': user.username, 'avatar': user.avatar, 'unread': unread})
+            unread_msgs = Message.query.filter_by(sender_id=uid, receiver_id=my_id, is_read=False).all()
+            unread = len(unread_msgs) > 0
+            
+            # Находим ID последнего сообщения от этого пользователя
+            last_msg = Message.query.filter_by(sender_id=uid, receiver_id=my_id).order_by(Message.id.desc()).first()
+            last_msg_id = last_msg.id if last_msg else 0
+            
+            result.append({
+                'id': user.id, 
+                'name': user.name, 
+                'username': user.username, 
+                'avatar': user.avatar,
+                'unread': unread,
+                'last_msg_id': last_msg_id # <-- ДОБАВИЛИ ЭТО
+            })
     return jsonify(result)
 
 @app.route('/profile')
