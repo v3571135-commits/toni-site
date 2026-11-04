@@ -105,94 +105,7 @@
     </div>
 
     <script>
-        var myUserId = parseInt(localStorage.getItem('toni_user_id'));
-        var currentChatId = null;
-        var updateInterval = null;
-
-        if (!myUserId) {
-            alert("Сначала зарегистрируйся в профиле!");
-            window.location.href = "/profile";
-        }
-
-       function loadChatList() {
-            fetch('/api/chats/' + myUserId)
-            .then(function(res) { return res.json(); })
-            .then(function(chats) {
-                var listDiv = document.getElementById('active-chats-list');
-                var hasUnread = false; // Флаг непрочитанных
-                listDiv.innerHTML = '';
-
-                chats.forEach(function(c) {
-                    if (c.unread) hasUnread = true; // Если есть хоть одно непрочитанное
-                    // ... (твой код отрисовки чатов) ...
-                });
-
-                // Показываем или скрываем кружок на кнопке "Мои чаты" (в левом меню)
-                var menuBadge = document.getElementById('menu-unread-badge');
-                if (menuBadge) {
-                    menuBadge.style.display = hasUnread ? 'block' : 'none';
-                }
-            });
-        }
-
-        function searchUsers() {
-            var query = document.getElementById('search-input').value.trim();
-            var resDiv = document.getElementById('search-results');
-            if (query.length < 2) return;
-
-            resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
-
-            fetch('/api/search_users', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({query: query})
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(users) {
-                resDiv.innerHTML = '';
-                if (users.length === 0) {
-                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Не найден</div>';return;
-                }
-                for (var i = 0; i < users.length; i++) {
-                    var u = users[i];
-                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
-                        '<span style="font-size: 20px;">' + u.avatar + '</span>' +
-                        '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
-                }
-            });
-        }
-
-        function openChat(id, name, avatar) {
-            currentChatId = id;
-            
-            document.getElementById('search-results').innerHTML = '';
-            document.getElementById('search-input').value = '';
-            
-            document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('active-chat').style.display = 'flex';
-            
-            document.getElementById('header-avatar').innerText = avatar;
-            document.getElementById('header-name').innerText = name;
-            document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
-            
-            if (id !== 0) {
-                fetch('/api/messages/read', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({from_id: id, my_id: myUserId})
-                }).then(function() { loadChatList(); });
-            }
-
-            loadMessages();
-            
-            if (updateInterval) clearInterval(updateInterval);
-            updateInterval = setInterval(function() {
-                loadMessages();
-                loadChatList(); 
-            }, 2000);
-        }
-
-     var lastMessageId = 0; // Запоминаем ID последнего сообщения
+        var lastMessageId = 0; // Запоминаем ID последнего сообщения
 
         function loadMessages() {
             if (currentChatId === null) return;
@@ -235,27 +148,6 @@
                 audio.play().catch(e => console.log("Звук не найден"));
             }
         }
-
-       function sendMsg() {
-            var text = document.getElementById('msg-input').value.trim();
-            if (!text || currentChatId === null) return;
-            
-            // Если currentChatId равен 0, значит мы в Заметках. Отправляем самому себе.
-            var targetId = (currentChatId === 0) ? myUserId : currentChatId;
-
-            fetch('/api/messages/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
-            }).then(function() {
-                document.getElementById('msg-input').value = '';
-                loadMessages();
-                loadChatList(); 
-            });
-        }
-        window.onload = function() {
-            loadChatList();
-        };
     </script>
 </body>
 </html>
