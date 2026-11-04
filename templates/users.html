@@ -193,13 +193,16 @@
             }, 2000);
         }
 
-        function loadMessages() {
+      function loadMessages() {
             if (currentChatId === null) return;
+            
+            // Если мы в Заметках, ищем сообщения для себя
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
             .then(function(res) { return res.json(); })
             .then(function(msgs) {
+                // ... (остальной код)
                 var box = document.getElementById('chat-messages');
                 var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
