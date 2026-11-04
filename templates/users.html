@@ -134,7 +134,7 @@
             window.location.href = "/profile";
         }
 
-        function searchUsers() {
+       function searchUsers() {
             var query = document.getElementById('search-input').value.trim();
             var resDiv = document.getElementById('search-results');
             
@@ -159,6 +159,7 @@
                 }
                 for (var i = 0; i < users.length; i++) {
                     var u = users[i];
+                    // Показываем всех, кроме себя
                     if (u.id !== myUserId) {
                         resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
                             '<span style="font-size: 20px;">' + u.avatar + '</span>' +
@@ -171,7 +172,6 @@
                 console.log(err);
             });
         }
-
         function openChat(id, name, avatar) {
             currentChatId = id;
             
