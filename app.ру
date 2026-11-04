@@ -185,11 +185,16 @@ def get_chat_history(user1, user2):
 @app.route('/api/messages/send', methods=['POST'])
 def send_chat_message():
     data = request.json
-    new_msg = Message(sender_id=data['sender_id'], receiver_id=data['receiver_id'], text=data['text'], is_read=False)
+    
+    # Если ID получателя равен 0 (это заметки), отправляем самому себе
+    receiver = data['receiver_id']
+    if receiver == 0:
+        receiver = data['sender_id']
+
+    new_msg = Message(sender_id=data['sender_id'], receiver_id=receiver, text=data['text'], is_read=False)
     db.session.add(new_msg)
     db.session.commit()
     return jsonify({'status': 'ok'})
-
 @app.route('/api/messages/read', methods=['POST'])
 def mark_as_read():
     data = request.json
