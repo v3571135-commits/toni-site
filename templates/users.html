@@ -167,24 +167,45 @@
             window.chatInterval = setInterval(loadMessages, 2000);
         }
 
-        function loadMessages() {
-            if (currentChatId === null) return;
-            var targetId = (currentChatId === 0) ? myUserId : currentChatId;
-            fetch('/api/messages/' + myUserId + '/' + targetId)
+      var lastNotifiedId = 0; // Запоминаем ID последнего сообщения, на которое среагировали
+
+        function loadChatList() {
+            fetch('/api/chats/' + myUserId)
             .then(function(res) { return res.json(); })
-            .then(function(msgs) {
-                var box = document.getElementById('chat-messages');
-                var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
-                box.innerHTML = '';
-                for (var i = 0; i < msgs.length; i++) {
-                    var m = msgs[i];
-                    var isMine = (m.sender_id === myUserId);
-                    var cls = isMine ? 'my' : 'their';
-                    var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
+            .then(function(chats) {
+                var listDiv = document.getElementById('active-chats-list');
+                var hasUnread = false;
+                listDiv.innerHTML = '';
+
+                for (var i = 0; i < chats.length; i++) {
+                    var c = chats[i];
+                    if (c.unread) {
+                        hasUnread = true;
+                        // Если есть непрочитанное и это НОВОЕ сообщение (ID больше предыдущего) — играем звук
+                        if (c.last_msg_id > lastNotifiedId) {
+                            playNotificationSound();
+                            lastNotifiedId = c.last_msg_id;
+                        }
+                    }
+                    var unreadClass = c.unread ? 'show' : '';
+                    var activeClass = (currentChatId === c.id) ? 'active' : '';
+                    
+                    listDiv.innerHTML += '<div class="chat-item ' + activeClass + '" onclick="openChat(' + c.id + ', \'' + c.name + '\', \'' + c.avatar + '\')">' +
+                        '<div style="font-size: 24px;">' + c.avatar + '</div>' +
+                        '<div class="chat-info"><div class="chat-name">' + c.name + '</div>' +
+                        '<div class="chat-desc">@' + c.username + '</div></div>' +
+                        '<div class="unread-badge ' + unreadClass + '"></div></div>';
                 }
-                if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
+        }
+
+        function playNotificationSound() {
+            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
+            if (isNotifOn) {
+                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
+                var audio = new Audio('/static/' + sound);
+                audio.play().catch(function(e) { console.log("Звук не найден"); });
+            }
         }
 
         function sendMsg() {
