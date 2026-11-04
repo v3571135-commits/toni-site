@@ -26,6 +26,22 @@ class Message(db.Model):
     sender_id = db.Column(db.Integer, nullable=False)
     receiver_id = db.Column(db.Integer, nullable=False)
     text = db.Column(db.Text, nullable=True)
+function loadChatList() {
+            var savedChats = localStorage.getItem('toni_active_chats');
+            var chats = savedChats ? JSON.parse(savedChats) : [];
+            var listDiv = document.getElementById('active-chats-list');
+            listDiv.innerHTML = '';
+
+            if (chats.length === 0) return;
+
+            for (var i = 0; i < chats.length; i++) {
+                var chat = chats[i];
+                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
+                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
+                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
+                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
+            }
+        }
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -108,17 +124,38 @@ def get_chat_history(user1, user2):
         'text': m.text
     } for m in msgs])
 
-@app.route('/api/messages/send', methods=['POST'])
-def send_chat_message():
-    data = request.json
-    new_msg = Message(
-        sender_id=data['sender_id'], 
-        receiver_id=data['receiver_id'], 
-        text=data['text']
-    )
-    db.session.add(new_msg)
-    db.session.commit()
-    return jsonify({'status': 'ok'})
+function loadChatList() {
+            var savedChats = localStorage.getItem('toni_active_chats');
+            var chats = savedChats ? JSON.parse(savedChats) : [];
+            var listDiv = document.getElementById('active-chats-list');
+            listDiv.innerHTML = '';
+
+            if (chats.length === 0) return;
+
+            for (var i = 0; i < chats.length; i++) {
+                var chat = chats[i];
+                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
+                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
+                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
+                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
+            }
+        }
+function loadChatList() {
+            var savedChats = localStorage.getItem('toni_active_chats');
+            var chats = savedChats ? JSON.parse(savedChats) : [];
+            var listDiv = document.getElementById('active-chats-list');
+            listDiv.innerHTML = '';
+
+            if (chats.length === 0) return;
+
+            for (var i = 0; i < chats.length; i++) {
+                var chat = chats[i];
+                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
+                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
+                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
+                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
+            }
+        }
 
 @app.route('/profile')
 def profile(): return render_template('profile.html')
