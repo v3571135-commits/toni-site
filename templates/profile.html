@@ -74,13 +74,40 @@
         </div>
 
         <!-- ЛИЧНЫЙ КАБИНЕТ -->
+      <!-- ЛИЧНЫЙ КАБИНЕТ -->
         <div id="profile-screen" class="hidden">
             <div class="profile-info">
                 <div class="big-avatar" id="display-avatar">👤</div>
                 <h2 style="margin:0; color: #007bff;" id="display-name">Имя</h2>
                 <p style="margin:5px 0 0 0; color:#6c757d;" id="display-id">@id</p>
             </div>
-            <button class="btn" onclick="logout()" style="background-color: #6c757d;">Выйти из аккаунта</button>
+
+            <!-- Блоки настроек -->
+            <div class="form-group">
+                <label>Аватарка</label>
+                <div class="avatar-selection" id="avatar-picker" style="margin-bottom: 10px;">
+                    <div class="avatar-option" onclick="selectAvatar(this, '👤')">👤</div>
+                    <div class="avatar-option" onclick="selectAvatar(this, '😎')">😎</div>
+                    <div class="avatar-option" onclick="selectAvatar(this, '🤖')">🤖</div>
+                    <div class="avatar-option" onclick="selectAvatar(this, '🕷️')">🕷️</div>
+                    <div class="avatar-option" onclick="selectAvatar(this, '⚡')">⚡</div>
+                </div>
+                <button class="btn" onclick="updateProfile('avatar')" style="padding: 10px; font-size: 14px;">Сменить аватарку</button>
+            </div>
+
+            <div class="form-group">
+                <label>Имя</label>
+                <input type="text" id="new-name" placeholder="Новое имя">
+                <button class="btn" onclick="updateProfile('name')" style="padding: 10px; font-size: 14px; margin-top: 5px;">Сменить имя</button>
+            </div>
+
+            <div class="form-group">
+                <label>ID</label>
+                <input type="text" id="new-id" placeholder="Новый ID">
+                <button class="btn" onclick="updateProfile('username')" style="padding: 10px; font-size: 14px; margin-top: 5px;">Сменить ID</button>
+            </div>
+
+            <button class="btn" onclick="logout()" style="background-color: #6c757d; margin-top: 20px;">Выйти из аккаунта</button>
             <a href="/" style="display:block; text-align:center; margin-top:15px; color:#007bff;">← Вернуться в чат</a>
         </div>
     </div>
