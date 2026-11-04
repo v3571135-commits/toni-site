@@ -45,7 +45,7 @@
             💬 Мои чаты
             <span id="menu-unread-badge" style="display: none; position: absolute; top: 8px; right: 15px; width: 12px; height: 12px; background: red; border-radius: 50%; border: 2px solid white;"></span>
         </a>
-        <a onclick="openChat(0, 'Заметки', '🔒')">📝Заметки</a>
+        <a onclick="openChat(0, 'Заметки', '🔒')">📝заметки</a>
         <a href="/">← На главную</a>
     </div>
 
@@ -90,10 +90,19 @@
     <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
         var currentChatId = null;
+        var lastPlayedSoundId = 0; // Чтобы звук не спамил
 
         if (!myUserId) {
             alert("Сначала зарегистрируйся в профиле!");
             window.location.href = "/profile";
+        }
+
+        function playSound() {
+            if (localStorage.getItem('toni_notifications') === 'true') {
+                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
+                var audio = new Audio('/static/' + sound);
+                audio.play().catch(function() {});
+            }
         }
 
         function loadChatList() {
@@ -106,7 +115,17 @@
 
                 for (var i = 0; i < chats.length; i++) {
                     var c = chats[i];
-                    if (c.unread) hasUnread = true;
+                    
+                    // Если есть непрочитанное и мы не в этом чате
+                    if (c.unread) {
+                        hasUnread = true;
+                        // Если ID сообщения больше того, на которое мы уже реагировали — играем звук
+                        if (c.last_msg_id > lastPlayedSoundId && currentChatId !== c.id) {
+                            playSound();
+                            lastPlayedSoundId = c.last_msg_id;
+                        }
+                    }
+                    
                     var unreadClass = c.unread ? 'show' : '';
                     var activeClass = (currentChatId === c.id) ? 'active' : '';
                     
@@ -155,6 +174,7 @@
             document.getElementById('header-name').innerText = name;
             document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
             
+            // Помечаем как прочитанные (только если это не заметки)
             if (id !== 0) {
                 fetch('/api/messages/read', {
                     method: 'POST',
@@ -162,50 +182,30 @@
                     body: JSON.stringify({from_id: id, my_id: myUserId})
                 }).then(function() { loadChatList(); });
             }
+            
             loadMessages();
             if (window.chatInterval) clearInterval(window.chatInterval);
             window.chatInterval = setInterval(loadMessages, 2000);
         }
 
-      var lastNotifiedId = 0; // Запоминаем ID последнего сообщения, на которое среагировали
-
-        function loadChatList() {
-            fetch('/api/chats/' + myUserId)
+        function loadMessages() {
+            if (currentChatId === null) return;
+            var targetId = (currentChatId === 0) ? myUserId : currentChatId;
+            fetch('/api/messages/' + myUserId + '/' + targetId)
             .then(function(res) { return res.json(); })
-            .then(function(chats) {
-                var listDiv = document.getElementById('active-chats-list');
-                var hasUnread = false;
-                listDiv.innerHTML = '';
-
-                for (var i = 0; i < chats.length; i++) {
-                    var c = chats[i];
-                    if (c.unread) {
-                        hasUnread = true;
-                        // Если есть непрочитанное и это НОВОЕ сообщение (ID больше предыдущего) — играем звук
-                        if (c.last_msg_id > lastNotifiedId) {
-                            playNotificationSound();
-                            lastNotifiedId = c.last_msg_id;
-                        }
-                    }
-                    var unreadClass = c.unread ? 'show' : '';
-                    var activeClass = (currentChatId === c.id) ? 'active' : '';
-                    
-                    listDiv.innerHTML += '<div class="chat-item ' + activeClass + '" onclick="openChat(' + c.id + ', \'' + c.name + '\', \'' + c.avatar + '\')">' +
-                        '<div style="font-size: 24px;">' + c.avatar + '</div>' +
-                        '<div class="chat-info"><div class="chat-name">' + c.name + '</div>' +
-                        '<div class="chat-desc">@' + c.username + '</div></div>' +
-                        '<div class="unread-badge ' + unreadClass + '"></div></div>';
+            .then(function(msgs) {
+                var box = document.getElementById('chat-messages');
+                var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
+                box.innerHTML = '';
+                for (var i = 0; i < msgs.length; i++) {
+                    var m = msgs[i];
+                    var isMine = (m.sender_id === myUserId);
+                    var cls = isMine ? 'my' : 'their';
+                    var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
                 }
+                if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
-        }
-
-        function playNotificationSound() {
-            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
-            if (isNotifOn) {
-                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
-                var audio = new Audio('/static/' + sound);
-                audio.play().catch(function(e) { console.log("Звук не найден"); });
-            }
         }
 
         function sendMsg() {
@@ -213,8 +213,7 @@
             if (!text || currentChatId === null) return;
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
             fetch('/api/messages/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST',headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: myUserId, receiver_id: targetId, text: text})
             }).then(function() {
                 document.getElementById('msg-input').value = '';
@@ -225,7 +224,7 @@
 
         window.onload = function() {
             loadChatList();
-            setInterval(loadChatList, 3000); // Обновляем список чатов каждые 3 секунды
+            setInterval(loadChatList, 3000); // Обновляем список чатов и проверяем новые сообщения каждые 3 сек
         };
     </script>
 </body>
