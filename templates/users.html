@@ -6,46 +6,35 @@
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; height: 100vh; overflow: hidden; }
-        
         .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #007bff; flex-shrink: 0; }
         .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 12px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; transition: 0.3s; cursor: pointer; position: relative;}
         .sidebar a:hover { background-color: #007bff; color: white; }
-        
         .main-content { flex: 1; display: flex; background-color: #ffffff; }
-        
         .chat-list { width: 320px; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; background: #f8f9fa; }
         .search-bar { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; gap: 5px; }
         .search-bar input { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; }
         .search-bar button { padding: 0 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        
         .search-results { max-height: 200px; overflow-y: auto; border-bottom: 1px solid #dee2e6; background: #fff; }
         .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
         .search-item:hover { background: #e9ecef; }
-        
         .chats-container { flex: 1; overflow-y: auto; }
         .chat-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; position: relative; }
         .chat-item:hover { background: #e9ecef; }
         .chat-item.active { background: #cce5ff; border-left: 4px solid #007bff; }
-        
         .chat-info { flex: 1; }
         .chat-name { font-weight: bold; color: #333; }
         .chat-desc { color: #6c757d; font-size: 13px; }
-
         .unread-badge { width: 12px; height: 12px; background-color: #007bff; border-radius: 50%; display: none; }
         .unread-badge.show { display: block; }
-        
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
         .chat-header { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px; background: #ffffff; }
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f0f4f8; }
-        
         .msg { padding: 10px 15px; border-radius: 15px; max-width: 70%; word-wrap: break-word; }
         .msg.my { background-color: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
         .msg.their { background-color: #ffffff; color: #333; align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid #dee2e6; }
-        
         .chat-input-area { padding: 15px; border-top: 1px solid #dee2e6; display: flex; gap: 10px; background: #ffffff; }
         .chat-input-area input { flex: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 20px; font-size: 16px; outline: none; }
         .chat-input-area button { padding: 0 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        
         .empty-chat { display: flex; align-items: center; justify-content: center; height: 100%; color: #6c757d; font-size: 18px; }
     </style>
 </head>
@@ -54,9 +43,9 @@
         <a href="/profile">👤 Профиль</a>
         <a href="/users" style="background-color: #007bff; color: white;">
             💬 Мои чаты
-            <span id="menu-unread-badge" style="display: none; position: absolute; top: 8px; right: 15px; width: 12px; height: 12px; background: red; border-radius: 50%; border:2px solid white;"></span>
+            <span id="menu-unread-badge" style="display: none; position: absolute; top: 8px; right: 15px; width: 12px; height: 12px; background: red; border-radius: 50%; border: 2px solid white;"></span>
         </a>
-        <a onclick="openChat(0, 'Заметки', '🔒')">📝 Заметки</a>
+        <a onclick="openChat(0, 'Заметки', '🔒')">📝Заметки</a>
         <a href="/">← На главную</a>
     </div>
 
@@ -67,7 +56,6 @@
                 <button type="button" onclick="searchUsers()">Найти</button>
             </div>
             <div class="search-results" id="search-results"></div>
-            
             <div class="chats-container" id="chats-container">
                 <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
                     <div style="font-size: 24px;">🔒</div>
@@ -76,14 +64,12 @@
                         <div class="chat-desc">Твой личный блокнот</div>
                     </div>
                 </div>
-                
                 <div id="active-chats-list"></div>
             </div>
         </div>
 
         <div class="chat-window">
             <div class="empty-chat" id="empty-state">Выбери чат или найди пользователя</div>
-            
             <div id="active-chat" style="display: none; flex-direction: column; height: 100%;">
                 <div class="chat-header">
                     <div style="font-size: 30px;" id="header-avatar">👤</div>
@@ -101,27 +87,16 @@
         </div>
     </div>
 
-   <script>
+    <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
         var currentChatId = null;
-        var lastNotifiedMessageId = 0; // Запоминаем ID последнего сообщения, на которое уже среагировали
 
         if (!myUserId) {
             alert("Сначала зарегистрируйся в профиле!");
             window.location.href = "/profile";
         }
 
-        function playNotificationSound() {
-            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
-            if (isNotifOn) {
-                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
-                var audio = new Audio('/static/' + sound);
-                audio.play().catch(function(e) { console.log("Звук не найден"); });
-            }
-        }
-
-        // Загрузка списка чатов и проверка на непрочитанные
-        function checkForNewMessages() {
+        function loadChatList() {
             fetch('/api/chats/' + myUserId)
             .then(function(res) { return res.json(); })
             .then(function(chats) {
@@ -142,25 +117,8 @@
                         '<div class="unread-badge ' + unreadClass + '"></div></div>';
                 }
 
-                // Кружок на кнопке "Мои чаты"
                 var menuBadge = document.getElementById('menu-unread-badge');
-                if (menuBadge) {
-                    menuBadge.style.display = hasUnread ? 'block' : 'none';
-                }
-
-                // Логика звука: если есть непрочитанные и мы НЕ в этом чате
-                if (hasUnread) {
-                    // Находим чат с непрочитанным
-                    for (var i = 0; i < chats.length; i++) {
-                        if (chats[i].unread && currentChatId !== chats[i].id) {
-                            // Играем звук только если это новое уведомление (чтобы не спамить каждые 3 секунды)
-                            if (chats[i].last_msg_id > lastNotifiedMessageId) {
-                                playNotificationSound();
-                                lastNotifiedMessageId = chats[i].last_msg_id;
-                            }
-                        }
-                    }
-                }
+                if (menuBadge) menuBadge.style.display = hasUnread ? 'block' : 'none';
             });
         }
 
@@ -168,9 +126,7 @@
             var query = document.getElementById('search-input').value.trim();
             var resDiv = document.getElementById('search-results');
             if (query.length < 2) return;
-
             resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
-
             fetch('/api/search_users', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -179,16 +135,11 @@
             .then(function(res) { return res.json(); })
             .then(function(users) {
                 resDiv.innerHTML = '';
-                if (users.length === 0) {
-                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Не найден</div>';
-                    return;
-                }
+                if (users.length === 0) { resDiv.innerHTML = '<div style="padding:10px; color:#888;">Не найден</div>'; return; }
                 for (var i = 0; i < users.length; i++) {
                     var u = users[i];
                     resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
-
-
-<span style="font-size: 20px;">' + u.avatar + '</span>' +
+                        '<span style="font-size: 20px;">' + u.avatar + '</span>' +
                         '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
                 }
             });
@@ -196,30 +147,22 @@
 
         function openChat(id, name, avatar) {
             currentChatId = id;
-            
             document.getElementById('search-results').innerHTML = '';
             document.getElementById('search-input').value = '';
-            
             document.getElementById('empty-state').style.display = 'none';
             document.getElementById('active-chat').style.display = 'flex';
-            
             document.getElementById('header-avatar').innerText = avatar;
             document.getElementById('header-name').innerText = name;
             document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
             
-            // Отмечаем как прочитанные при входе
             if (id !== 0) {
                 fetch('/api/messages/read', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({from_id: id, my_id: myUserId})
-                }).then(function() { 
-                    checkForNewMessages(); // Обновляем кружочки сразу
-                });
+                }).then(function() { loadChatList(); });
             }
-
             loadMessages();
-            
             if (window.chatInterval) clearInterval(window.chatInterval);
             window.chatInterval = setInterval(loadMessages, 2000);
         }
@@ -227,23 +170,19 @@
         function loadMessages() {
             if (currentChatId === null) return;
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
-
             fetch('/api/messages/' + myUserId + '/' + targetId)
             .then(function(res) { return res.json(); })
             .then(function(msgs) {
                 var box = document.getElementById('chat-messages');
                 var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
-                
                 box.innerHTML = '';
                 for (var i = 0; i < msgs.length; i++) {
                     var m = msgs[i];
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
-                    
                     var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
                 }
-                
                 if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
         }
@@ -252,7 +191,6 @@
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
-
             fetch('/api/messages/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -260,14 +198,14 @@
             }).then(function() {
                 document.getElementById('msg-input').value = '';
                 loadMessages();
-                checkForNewMessages(); 
+                loadChatList(); 
             });
         }
 
         window.onload = function() {
-            checkForNewMessages(); // Первый запуск
-            setInterval(checkForNewMessages, 3000); // Фоновая проверка каждые 3 секунды
+            loadChatList();
+            setInterval(loadChatList, 3000); // Обновляем список чатов каждые 3 секунды
         };
-    </script>'
+    </script>
 </body>
 </html>
