@@ -23,9 +23,19 @@
         .search-item:hover { background: #e9ecef; }
         
         .chats-container { flex: 1; overflow-y: auto; }
-        .chat-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .chat-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; position: relative; }
         .chat-item:hover { background: #e9ecef; }
         .chat-item.active { background: #cce5ff; border-left: 4px solid #007bff; }
+        
+        .chat-info { flex: 1; }
+        .chat-name { font-weight: bold; color: #333; }
+        .chat-desc { color: #6c757d; font-size: 13px; }
+
+        .unread-badge { 
+            width: 12px; height: 12px; background-color: #007bff; 
+            border-radius: 50%; display: none; 
+        }
+        .unread-badge.show { display: block; }
         
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
         .chat-header { padding: 15px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 15px; background: #ffffff; }
@@ -40,41 +50,6 @@
         .chat-input-area button { padding: 0 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
         
         .empty-chat { display: flex; align-items: center; justify-content: center; height: 100%; color: #6c757d; font-size: 18px; }
-        .note-desc { color: #6c757d; font-size: 13px; font-weight: normal; }
-        /* Адаптивность для телефонов */
-        max-width: 768px {
-            body {
-                flex-direction: column; /* Меню сверху, контент снизу */
-            }
-            .sidebar {
-                width: 100%;
-                flex-direction: row; /* Кнопки меню в ряд */
-                overflow-x: auto;
-                border-right: none;
-                border-bottom: 2px solid #007bff;
-                padding: 10px;
-            }
-            .sidebar a {
-                white-space: nowrap;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            .main-content {
-                flex-direction: column; /* Список чатов и окно чата друг под другом */
-            }
-            .chat-list {
-                width: 100%; /* Список чатов на всю ширину */
-                border-right: none;
-                border-bottom: 1px solid #dee2e6;
-                max-height: 40vh; /* Ограничиваем высоту списка, чтобы было видно чат */
-            }
-            .chat-window {
-                width: 100%; /* Окно чата на всю ширину */
-            }
-            .empty-chat {
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -86,33 +61,22 @@
     </div>
 
     <div class="main-content">
-        <div class="chat-list">
+        <div class="chatt">
             <div class="search-bar">
                 <input type="text" id="search-input" placeholder="Поиск..." onkeypress="if(event.key==='Enter') searchUsers()">
                 <button type="button" onclick="searchUsers()">Найти</button>
             </div>
-            <div class=ch-results" id="search-results"></div>
+            <div class="search-results" id="search-results"></div>
             
             <div class="chats-container" id="chats-container">
                 <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
                     <div style="font-size: 24px;">🔒</div>
-                    <div>
-                        <div style="font-weight: bold; color: #333;">Заметки</div>
-                        <div class="note-desc">Твой личный блокнот</div>
-                    </div>
-                </div>
-            </div>
-            <div class="chats-container" id="chats-container">
-                <!-- Заметки -->
-                <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
-                    <div style="font-size: 24px;">🔒</div>
-                    <div>
-                        <div style="font-weight: bold; color: #333;">Заметки</div>
-                        <div class="note-desc">Твой личный блокнот</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Заметки</div>
+                        <div class="chat-desc">Твой личный блокнот</div>
                     </div>
                 </div>
                 
-                <!-- СЮДА БУДУТ ДОБАВЛЯТЬСЯ ЧАТЫ -->
                 <div id="active-chats-list"></div>
             </div>
         </div>
@@ -137,7 +101,7 @@
         </div>
     </div>
 
-   <script>
+    <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
         var currentChatId = null;
         var updateInterval = null;
@@ -147,32 +111,35 @@
             window.location.href = "/profile";
         }
 
-        // Загрузка списка чатов (кого мы искали и кому писали)
-      function loadChatList() {
-            var savedChats = localStorage.getItem('toni_active_chats');
-            var chats = savedChats ? JSON.parse(savedChats) : [];
-            var listDiv = document.getElementById('active-chats-list');
-            listDiv.innerHTML = '';
+        function loadChatList() {
+            fetch('/api/chats/' + myUserId)
+            .then(function(res) { return res.json(); })
+            .then(function(chats) {
+                var listDiv = document.getElementById('active-chats-list');
+                listDiv.innerHTML = '';
 
-            if (chats.length === 0) return;
-
-            for (var i = 0; i < chats.length; i++) {
-                var chat = chats[i];
-                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
-                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
-                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
-                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
-            }
+                chats.forEach(function(c) {
+                    var unreadClass = c.unread ? 'show' : '';
+                    var activeClass = (currentChatId === c.id) ? 'active' : '';
+                    
+                    listDiv.innerHTML += `
+                        <div class="chat-item ${activeClass}" onclick="openChat(${c.id}, '${c.name}', '${c.avatar}')">
+                            <div style="font-size: 24px;">${c.avatar}</div>
+                            <div class="chat-info">
+                                <div class="chat-name">${c.name}</div>
+                                <div class="chat-desc">@${c.username}</div>
+                            </div>
+                            <div class="unread-badge ${unreadClass}"></div>
+                        </div>
+                    `;
+                });
+            });
         }
-        // Поиск пользователей
+
         function searchUsers() {
             var query = document.getElementById('search-input').value.trim();
             var resDiv = document.getElementById('search-results');
-            
-            if (query.length < 2) { 
-                resDiv.innerHTML = '<div style="padding:10px; color:#888;">Введи хотя бы 2 символа</div>'; 
-                return; 
-            }
+            if (query.length < 2) return;
 
             resDiv.innerHTML = '<div style="padding:10px; color:#888;">Ищу...</div>';
 
@@ -185,24 +152,18 @@
             .then(function(users) {
                 resDiv.innerHTML = '';
                 if (users.length === 0) {
-                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Пользователь не найден</div>';
-                    return;
+                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Не найден</div>';return;
                 }
                 for (var i = 0; i < users.length; i++) {
                     var u = users[i];
-                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\', \'' + u.username + '\')">' +
+                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
                         '<span style="font-size: 20px;">' + u.avatar + '</span>' +
                         '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
                 }
-            })
-            .catch(function(err) {
-                resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
-                console.log(err);
             });
         }
 
-        // Открытие чата
-       function openChat(id, name, avatar, username) {
+        function openChat(id, name, avatar) {
             currentChatId = id;
             
             document.getElementById('search-results').innerHTML = '';
@@ -215,28 +176,23 @@
             document.getElementById('header-name').innerText = name;
             document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
             
-            // Сохраняем чат в список
             if (id !== 0) {
-                var savedChats = localStorage.getItem('toni_active_chats');
-                var chats = savedChats ? JSON.parse(savedChats) : [];
-                var exists = false;
-                for (var i = 0; i < chats.length; i++) {
-                    if (chats[i].id === id) { exists = true; break; }
-                }
-                if (!exists) {
-                    chats.push({id: id, name: name, avatar: avatar, username: username || ''});
-                    localStorage.setItem('toni_active_chats', JSON.stringify(chats));
-                    loadChatList(); // Обновляем список
-                }
+                fetch('/api/messages/read', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({from_id: id, my_id: myUserId})
+                }).then(function() { loadChatList(); });
             }
 
             loadMessages();
             
             if (updateInterval) clearInterval(updateInterval);
-            updateInterval = setInterval(loadMessages, 2000);
+            updateInterval = setInterval(function() {
+                loadMessages();
+                loadChatList(); 
+            }, 2000);
         }
 
-        // Загрузка сообщений
         function loadMessages() {
             if (currentChatId === null) return;
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
@@ -252,14 +208,17 @@
                     var m = msgs[i];
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
-                    box.innerHTML += '<div class="msg ' + cls + '">' + m.text + '</div>';
+                    
+                    // Защита от HTML-кода в сообщениях
+                    var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    
+                    box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
                 }
                 
                 if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
         }
 
-        // Отправка
         function sendMsg() {
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
@@ -272,10 +231,10 @@
             }).then(function() {
                 document.getElementById('msg-input').value = '';
                 loadMessages();
+                loadChatList(); 
             });
         }
 
-        // При загрузке страницы показываем сохраненные чаты
         window.onload = function() {
             loadChatList();
         };
