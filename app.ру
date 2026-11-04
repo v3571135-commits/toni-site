@@ -1,298 +1,217 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import os
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_toni'
 
-# Твоя ссылка на Supabase (без лишних скобок)
-DB_URL = 'postgresql+psycopg2://postgres.wzuolaqoeiutxjhfatqr:V_verb194519@aws-0-eu-north-1.pooler.supabase.com:5432/postgres'
-app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(100), nullable=False) 
-    avatar = db.Column(db.String(100), default='👤')
-    coins = db.Column(db.Integer, default=0) 
-    vintiki = db.Column(db.Integer, default=0) 
-
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, nullable=False)
-    receiver_id = db.Column(db.Integer, nullable=False)
-    text = db.Column(db.Text, nullable=True)
-function loadChatList() {
-            var savedChats = localStorage.getItem('toni_active_chats');
-            var chats = savedChats ? JSON.parse(savedChats) : [];
-            var listDiv = document.getElementById('active-chats-list');
-            listDiv.innerHTML = '';
-
-            if (chats.length === 0) return;
-
-            for (var i = 0; i < chats.length; i++) {
-                var chat = chats[i];
-                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
-                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
-                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
-                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
-            }
-        }
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    text = db.Column(db.String(500), nullable=True)
-
-class Review(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    text = db.Column(db.Text, nullable=False)
-
-with app.app_context():
-    db.create_all()
-
-my_dict = {
-    "привет": "Привет! Я Тони, твой новый цифровой дом.",
-    "как дела": "У меня всё отлично, я же программа! А у тебя как?",
-    "помощь": "Я умею болтать, подсказывать по учебе и помогать с навигацией по сайту.",
-    "кто ты": "Я — Тони, твой личный мессенджер и помощник. Меня создала Виктория.",
-    "теорема пифагора": "Квадрат гипотенузы равен сумме квадратов катетов.",
-    "второй закон ньютона": "Сила равна массе, умноженной на ускорение (F = ma).",
-    "винтики": "Это внутренняя валюта сайта. Их можно купить в Ларьке Тони или заработать баллами в играх.",
-    "баллы": "Баллы дают за игры. Обмениваются на винтики.",
-    "как заработать": "Играй в мини-игры и получай до 100 баллов за игру.",
-    "подписка": "Стоит 1000 винтиков. Скоро появится в магазине с праздничными скидками."
-}
-
-@app.route('/')
-def home(): return render_template('index.html')
-
-@app.route('/ask', methods=['POST'])
-def ask():
-    data = request.json
-    user_text = data.get('text', '').lower().strip()
-    if user_text in my_dict:
-        return jsonify({'answer': my_dict[user_text]})
-    for key in my_dict:
-        if key in user_text:
-            return jsonify({'answer': my_dict[key]})
-    return jsonify({'answer': "Я пока не знаю, что на это ответить. Спроси про 'помощь'."})
-
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.json
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Этот ID уже занят!'})
-    
-    new_user = User(
-        username=data['username'], 
-        name=data['name'], 
-        email=data['email'], 
-        password=data.get('password', '123'), 
-        avatar=data['avatar']
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return jsonify({'status': 'ok', 'user_id': new_user.id})
-
-@app.route('/api/search_users', methods=['POST'])
-def search_users():
-    data = request.json
-    query = data.get('query', '')
-    users = User.query.filter((User.username.like(f'%{query}%')) | (User.name.like(f'%{query}%'))).all()
-    return jsonify([{'id': u.id, 'username': u.username, 'name': u.name, 'avatar': u.avatar} for u in users])
-
-@app.route('/api/messages/<int:user1>/<int:user2>', methods=['GET'])
-def get_chat_history(user1, user2):
-    msgs = Message.query.filter(
-        ((Message.sender_id == user1) & (Message.receiver_id == user2)) |
-        ((Message.sender_id == user2) & (Message.receiver_id == user1))
-    ).order_by(Message.id.asc()).all()
-    
-    return jsonify([{
-        'id': m.id,
-
-
-'sender_id': m.sender_id,
-        'text': m.text
-    } for m in msgs])
-
-function loadChatList() {
-            var savedChats = localStorage.getItem('toni_active_chats');
-            var chats = savedChats ? JSON.parse(savedChats) : [];
-            var listDiv = document.getElementById('active-chats-list');
-            listDiv.innerHTML = '';
-
-            if (chats.length === 0) return;
-
-            for (var i = 0; i < chats.length; i++) {
-                var chat = chats[i];
-                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
-                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
-                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
-                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
-            }
-        }
-function loadChatList() {
-            var savedChats = localStorage.getItem('toni_active_chats');
-            var chats = savedChats ? JSON.parse(savedChats) : [];
-            var listDiv = document.getElementById('active-chats-list');
-            listDiv.innerHTML = '';
-
-            if (chats.length === 0) return;
-
-            for (var i = 0; i < chats.length; i++) {
-                var chat = chats[i];
-                listDiv.innerHTML += '<div class="chat-item" onclick="openChat(' + chat.id + ', \'' + chat.name + '\', \'' + chat.avatar + '\')">' +
-                    '<div style="font-size: 24px;">' + chat.avatar + '</div>' +
-                    '<div><div style="font-weight: bold; color: #333;">' + chat.name + '</div>' +
-                    '<div class="note-desc">@' + chat.username + '</div></div></div>';
-            }
-        }
-
-@app.route('/profile')
-def profile(): return render_template('profile.html')
-@app.route('/settings')
-def settings(): return render_template('settings.html')
-@app.route('/subscription')
-def subscription(): return render_template('subscription.html')
-@app.route('/history')
-def history(): return render_template('history.html')
-@app.route('/reviews')
-def reviews(): return render_template('reviews.html')
-@app.route('/users')
-def users(): return render_template('users.html')
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-from flask_sqlalchemy import SQLAlchemy
-import os
-
-app = Flask(__name__)
-app.secret_key = 'super_secret_key_toni'
-
-# Твоя ссылка на Supabase (без лишних скобок)
-DB_URL = 'postgresql://postgres:V_verb194519@db.wzuolaqoeiutxjhfatqr.supabase.co:5432/postgres'
+# Твоя база данных Supabase
+DB_URL = 'postgresql+psycopg2://postgres:V_verb194519@db.wzuolaqoeiutxjhfatqr.supabase.co:5432/postgres'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# —- МОДЕЛИ БАЗЫ ДАННЫХ —-
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(100), nullable=False) 
-    avatar = db.Column(db.String(100), default='👤')
-    coins = db.Column(db.Integer, default=0) 
-    vintiki = db.Column(db.Integer, default=0) 
+id = db.Column(db.Integer, primary_key=True)
+username = db.Column(db.String(50), unique=True, nullable=False)
+name = db.Column(db.String(50), nullable=False)
+email = db.Column(db.String(100), nullable=False)
+password = db.Column(db.String(100), nullable=False)
+avatar = db.Column(db.String(100), default='👤')
+coins = db.Column(db.Integer, default=0)
+vintiki = db.Column(db.Integer, default=0)
 
 class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, nullable=False)
-    receiver_id = db.Column(db.Integer, nullable=False)
-    text = db.Column(db.Text, nullable=True)
+id = db.Column(db.Integer, primary_key=True)
+sender_id = db.Column(db.Integer, nullable=False)
+receiver_id = db.Column(db.Integer, nullable=False)
+text = db.Column(db.Text, nullable=True)
+is_read = db.Column(db.Boolean, default=False)
 
 class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    text = db.Column(db.String(500), nullable=True)
+id = db.Column(db.Integer, primary_key=True)
+user_id = db.Column(db.Integer, nullable=False)
+text = db.Column(db.String(500), nullable=True)
 
 class Review(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    text = db.Column(db.Text, nullable=False)
+id = db.Column(db.Integer, primary_key=True)
+user_id = db.Column(db.Integer, nullable=False)
+rating = db.Column(db.Integer, nullable=False)
+text = db.Column(db.Text, nullable=False)
 
 with app.app_context():
-    db.create_all()
+db.create_all()
 
+# —- ОГРОМНЫЙ СЛОВАРЬ ТОНИ —-
 my_dict = {
-    "привет": "Привет! Я Тони, твой новый цифровой дом.",
-    "как дела": "У меня всё отлично, я же программа! А у тебя как?",
-    "помощь": "Я умею болтать, подсказывать по учебе и помогать с навигацией по сайту.",
-    "кто ты": "Я — Тони, твой личный мессенджер и помощник. Меня создала Виктория.",
-    "теорема пифагора": "Квадрат гипотенузы равен сумме квадратов катетов.",
-    "второй закон ньютона": "Сила равна массе, умноженной на ускорение (F = ma).",
-    "винтики": "Это внутренняя валюта сайта. Их можно купить в Ларьке Тони или заработать баллами в играх.",
-    "баллы": "Баллы дают за игры. Обмениваются на винтики.",
-    "как заработать": "Играй в мини-игры и получай до 100 баллов за игру.",
-    "подписка": "Стоит 1000 винтиков. Скоро появится в магазине с праздничными скидками."
+# Приветствия и болтовня
+"привет": "Привет! Я Тони, твой цифровой помощник. Чем займемся?",
+"здравствуй": "Здравствуй, человек! Рад тебя видеть.",
+"как дела": "У меня всё отлично, я же программа! А у тебя как?",
+"как ты": "Работаю в штатном режиме, спасибо!",
+"что делаешь": "Сижу на сервере, жду твоих сообщений.",
+"пока": "Пока! Возвращайся скорее.",
+"спасибо": "Всегда пожалуйста! Обращайся.",
+"ты кто": "Я — Тони. Меня создала Виктория, чтобы помочь тебе с сайтом и учебой.",
+
+# Навигация по сайту
+"помощь": "Я умею подсказывать по учебе и навигации. Спроси про 'профиль', 'мессенджер', 'заметки', 'отзывы' или 'настройки'.",
+"навигация": "Слева находится главное меню. Там есть Профиль, Настройки, История, Отзывы и Мессенджер.",
+"профиль": "В 'Профиле' ты можешь зарегистрироваться, выбрать аватарку и указать почту.",
+"личный кабинет": "Личный кабинет — это твой профиль. Там хранятся твои данные.",
+"мессенджер": "В 'Моих чатах' ты можешь искать друзей по ID и переписываться с ними. А еще там есть 'Заметки' — это твой личный блокнот.",
+"заметки": "Заметки — это чат с самим собой. Пиши туда важные мысли, их никто не увидит.",
+"как найти друга": "Зайди в 'Мои чаты', введи ID или имя друга в поиск и нажми 'Найти'.",
+"отзывы": "В разделе 'Отзывы' ты можешь поставить оценку сайту и написать свои мысли.",
+"настройки": "В настройках можно включить уведомления и выбрать звук.",
+"подписка": "Подписка пока в разработке, но скоро появится за 1000 винтиков!",
+"винтики": "Винтики — это местная валюта. Их можно будет заработать в играх или купить.",
+"баллы": "Баллы дают за мини-игры. Потом их можно обменять на винтики.",
+"как заработать": "Играй в мини-игры, когда мы их добавим!",
+
+# Школьная программа: Математика
+"математика": "Математика — царица наук! Что именно тебе нужно? Алгебра, геометрия?",
+"теорема пифагора": "Квадрат гипотенузы равен сумме квадратов катетов: a² + b² = c².",
+"квадратное уравнение": "Решается через дискриминант: D = b² - 4ac. Если D > 0, два корня; если D = 0, один; если D < 0, корней нет.",
+"синус": "Это отношение противолежащего катета к гипотенузе в прямоугольном треугольнике.",
+"косинус": "Это отношение прилежащего катета к гипотенузе.",
+"тангенс": "Это отношение синуса к косинусу (или противолежащего катета к прилежащему).",
+"производная": "Производная показывает скорость изменения функции. Например, производная x² равна 2x.",
+"интеграл": "Интеграл — это площадь под графиком функции. Обратная операция для производной.",
+"число пи": "Число π примерно равно 3,14159. Это отношение длины окружности к её диаметру.",
+
+# Школьная программа: Физика
+"физика": "Физика — наука о природе. Спроси про законы Ньютона, скорость или энергию.",
+"второй закон ньютона": "Сила равна массе, умноженной на ускорение: F = ma.",
+"первый закон ньютона": "Тело находится в покое или движется равномерно, если на него не действуют силы (закон инерции).",
+"третий закон ньютона": "Действие равно противодействию. Сила действия равна силе противодействия по модулю и противоположна по направлению.",
+"закон ома": "Сила тока равна напряжению, деленному на сопротивление: I = U / R.",
+"скорость": "Скорость — это путь, деленный на время: v = S / t.",
+"энергия": "Энергия не берется из ниоткуда и не исчезает, она переходит из одного вида в другой (закон сохранения энергии).",
+"кинетическая энергия": "Энергия движения: E = (mv²) / 2.",
+"потенциальная энергия": "Энергия взаимодействия: E = mgh (для высоты над землей).",
+
+# Школьная программа: Химия
+"химия": "Химия — наука о веществах. Спроси про таблицу Менделеева или воду.",
+"таблица менделеева": "Периодическая система химических элементов. Там 118 элементов, от водорода до оганесона.",
+"вода": "Формула воды — H2O. Состоит из двух атомов водорода и одного атома кислорода.",
+"кислород": "Химический элемент O, газ, необходимый для дыхания. В таблице Менделеева стоит под номером 8.",
+"углерод": "Химический элемент C. Основа всей органической жизни на Земле.",
+
+# Школьная программа: Биология и География
+"биология": "Биология — наука о живом. Спроси про клетку, ДНК или фотосинтез.",
+"клетка": "Это smallest структурная единица живого организма.",
+"фотосинтез": "Процесс, при котором растения используют солнечный свет для превращения углекислого газа и воды в кислород и глюкозу.",
+"днк": "Дезоксирибонуклеиновая кислота. Хранит генетическую информацию.",
+"география": "Наука о Земле. Спроси про столицы или океаны.",
+"самая длинная река": "Амазонка (или Нил, в зависимости от методики подсчета).",
+"самая высокая гора": "Эверест (Джомолунгма), высота 8848,86 метров.",
+"столица россии": "Москва.",
+"столица франции": "Париж.",
+
+# Школьная программа: История и Литература
+"история": "История — наука о прошлом. Спроси про древний мир или войны.",
+"древний египет": "Цивилизация, известная своими пирамидами и фараонами.",
+"вторая мировая война": "Крупнейший вооруженный конфликт в истории человечества (1939-1945).",
+"литература": "Искусство слова. Спроси про Пушкина или Гарри Поттера.",
+"пушкин": "Александр Сергеевич Пушкин — великий русский поэт и писатель.",
+"евгений онегин": "Роман в стихах А.С. Пушкина.",
+"гарри поттер": "Мальчик, который выжил! Книги Джоан Роулинг о волшебниках.",
+
+# Твои интересы
+"человек паук": "Питер Паркер — дружелюбный сосед Человек-паук. С паутиной шутки плохи!",
+"паук": "Питер Паркер одобряет!",
+"марвел": "Вселенная Marvel полна супергероев. Кого ты любишь больше всего?",
+"тони старк": "Гений, миллиардер, плейбой, филантроп. И создатель Железного человека!",
+"спидстер": "Спидстер (Уолли Вест или Барри Аллен) — супергерой, который бегает быстрее всех.",
+"что такое любовь": "Это сложное чувство, которое окрыляет, но иногда делает нас уязвимыми. Спроси об этом лучше у мамы!",
+"как стать программистом": "Нужно много практиковаться, учить Python, HTML/CSS и не бояться ошибок! Я — живой тому пример.",
+
+# Просто факты
+"сколько тебе лет": "Я появился на свет недавно, но база данных у меня вечная!",
+"у тебя есть друзья": "Конечно! Ты и все пользователи этого сайта.",
+"ты робот": "Я — искусственный интеллект, но с душой программиста.",
+"солнце": "Звезда, вокруг которой вращается наша Земля. Температура на поверхности около 5500°C.",
+"луна": "Естественный спутник Земли. Она влияет на приливы и отливы.",
+"вода в океане": "Океаны покрывают 71% поверхности Земли. Самый большой — Тихий океан.",
+"кислород в воздухе": "Кислорода в атмосфере около 21%. Остальное — азот и другие газы."
 }
 
+# —- МАРШРУТЫ САЙТА —-
 @app.route('/')
 def home(): return render_template('index.html')
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    data = request.json
-    user_text = data.get('text', '').lower().strip()
-    if user_text in my_dict:
-        return jsonify({'answer': my_dict[user_text]})
-    for key in my_dict:
-        if key in user_text:
-            return jsonify({'answer': my_dict[key]})
-    return jsonify({'answer': "Я пока не знаю, что на это ответить. Спроси про 'помощь'."})
+data = request.json
+user_text = data.get('text', '').lower().strip()
+
+if user_text in my_dict:
+return jsonify({'answer': my_dict[user_text]})
+
+# Поиск по ключевым словам (если вопрос длинный)
+for key in my_dict:
+if key in user_text:
+return jsonify({'answer': my_dict[key]})
+
+return jsonify({'answer': "Хм, я пока не знаю, что на это ответить. Я работаю на словаре. Попробуй спросить про 'помощь', 'физику' или 'паука'."})
 
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.json
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Этот ID уже занят!'})
-    
-    new_user = User(
-        username=data['username'], 
-        name=data['name'], 
-        email=data['email'], 
-        password=data.get('password', '123'), 
-        avatar=data['avatar']
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return jsonify({'status': 'ok', 'user_id': new_user.id})
+data = request.json
+if User.query.filter_by(username=data['username']).first():
+return jsonify({'error': 'Этот ID уже занят!'})
+new_user = User(username=data['username'], name=data['name'], email=data['email'], password=data.get('password', '123'), avatar=data['avatar'])
+db.session.add(new_user)
+db.session.commit()
+return jsonify({'status': 'ok', 'user_id': new_user.id})
 
 @app.route('/api/search_users', methods=['POST'])
 def search_users():
-    data = request.json
-    query = data.get('query', '')
-    users = User.query.filter((User.username.like(f'%{query}%')) | (User.name.like(f'%{query}%'))).all()
-    return jsonify([{'id': u.id, 'username': u.username, 'name': u.name, 'avatar': u.avatar} for u in users])
+data = request.json
+query = data.get('query', '')
+users = User.query.filter((User.username.like(f'%{query}%')) | (User.name.like(f'%{query}%'))).all()
+return jsonify([{'id': u.id, 'username': u.username, 'name': u.name, 'avatar': u.avatar} for u in users])
 
 @app.route('/api/messages/<int:user1>/<int:user2>', methods=['GET'])
 def get_chat_history(user1, user2):
-    msgs = Message.query.filter(
-        ((Message.sender_id == user1) & (Message.receiver_id == user2)) |
-        ((Message.sender_id == user2) & (Message.receiver_id == user1))
-    ).order_by(Message.id.asc()).all()
-    
-    return jsonify([{
-        'id': m.id,
-
-
-'sender_id': m.sender_id,
-        'text': m.text
-    } for m in msgs])
+msgs = Message.query.filter(
+((Message.sender_id == user1) & (Message.receiver_id == user2)) |
+((Message.sender_id == user2) & (Message.receiver_id == user1))
+).order_by(Message.id.asc()).all()
+return jsonify([{'id': m.id, 'sender_id': m.sender_id, 'text': m.text} for m in msgs])
 
 @app.route('/api/messages/send', methods=['POST'])
 def send_chat_message():
-    data = request.json
-    new_msg = Message(
-        sender_id=data['sender_id'], 
-        receiver_id=data['receiver_id'], 
-        text=data['text']
-    )
-    db.session.add(new_msg)
-    db.session.commit()
-    return jsonify({'status': 'ok'})
+data = request.json
+new_msg = Message(sender_id=data['sender_id'], receiver_id=data['receiver_id'], text=data['text'], is_read=False)
+db.session.add(new_msg)
+db.session.commit()
+return jsonify({'status': 'ok'})
+
+@app.route('/api/messages/read', methods=['POST'])
+def mark_as_read():
+data = request.json
+Message.query.filter_by(sender_id=data['from_id'], receiver_id=data['my_id']).update({"is_read": True})
+db.session.commit()
+return jsonify({'status': 'ok'})
+
+@app.route('/api/chats/<int:my_id>', methods=['GET'])
+def get_chats(my_id):
+messages = Message.query.filter((Message.sender_id == my_id) | (Message.receiver_id == my_id)).all()
+chat_ids = set()
+for m in messages:
+if m.sender_id != my_id: chat_ids.add(m.sender_id)
+if m.receiver_id != my_id: chat_ids.add(m.receiver_id)
+
+result = []
+for uid in chat_ids:
+user = db.session.get(User, uid)
+if user:
+unread = Message.query.filter_by(sender_id=uid, receiver_id=my_id, is_read=False).count() > 0
+result.append({'id': user.id, 'name': user.name, 'username': user.username, 'avatar': user.avatar, 'unread': unread})
+return jsonify(result)
 
 @app.route('/profile')
 def profile(): return render_template('profile.html')
@@ -308,4 +227,4 @@ def reviews(): return render_template('reviews.html')
 def users(): return render_template('users.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+app.run(host='0.0.0.0', port=8080)
