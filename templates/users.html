@@ -153,22 +153,21 @@
             .then(function(res) { return res.json(); })
             .then(function(users) {
                 resDiv.innerHTML = '';
+                // Если ничего не нашли
                 if (users.length === 0) {
-                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Никого не найдено</div>';
+                    resDiv.innerHTML = '<div style="padding:10px; color:#888;">Пользователь не найден</div>';
                     return;
                 }
+                // Если нашли
                 for (var i = 0; i < users.length; i++) {
                     var u = users[i];
-                    // Показываем всех, кроме себя
-                    if (u.id !== myUserId) {
-                        resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
-                            '<span style="font-size: 20px;">' + u.avatar + '</span>' +
-                            '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
-                    }
+                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
+                        '<span style="font-size: 20px;">' + u.avatar + '</span>' +
+                        '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
                 }
             })
             .catch(function(err) {
-                resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
+                resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера. Проверь консоль (F12).</div>';
                 console.log(err);
             });
         }
