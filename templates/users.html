@@ -196,13 +196,12 @@
       function loadMessages() {
             if (currentChatId === null) return;
             
-            // Если мы в Заметках, ищем сообщения для себя
+            // Если currentChatId = 0, значит мы в заметках. Ищем сообщения для себя.
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
             .then(function(res) { return res.json(); })
             .then(function(msgs) {
-                // ... (остальной код)
                 var box = document.getElementById('chat-messages');
                 var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
@@ -212,9 +211,8 @@
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
                     
-                    // Защита от HTML-кода в сообщениях
+                    // Защита от HTML-кода
                     var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    
                     box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
                 }
                 
