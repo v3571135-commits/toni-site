@@ -5,38 +5,48 @@
     <title>TONI - Профиль</title>
     <style>
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        .profile-container { background-color: #ffffff; width: 95%; max-width: 700px; padding: 40px; border: 2px solid #007bff; border-radius: 10px; box-sizing: border-box; margin: 20px 0; }
-        .register-title { text-align: center; color: #007bff; margin-bottom: 10px; }
-        .register-subtitle { text-align: center; color: #6c757d; margin-bottom: 20px; }
-        .avatar-selection { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .avatar-option { width: 60px; height: 60px; background-color: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; border: 3px solid transparent; transition: 0.2s; box-sizing: border-box; }
-        .avatar-option:hover { transform: scale(1.1); }
-        .avatar-option.selected { border-color: #007bff; background-color: #cce5ff; }
-        .form-group { margin-bottom: 20px; text-align: left; }
+        .profile-container { background-color: #ffffff; width: 95%; max-width: 500px; padding: 40px; border: 2px solid #007bff; border-radius: 10px; box-sizing: border-box; margin: 20px 0; }
+        .title { text-align: center; color: #007bff; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 5px; color: #007bff; font-weight: bold; }
         input { width: 100%; padding: 12px; background-color: #f8f9fa; border: 1px solid #dee2e6; color: #333; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        input:focus { outline: none; border-color: #007bff; }
-        .btn { width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn { width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn:hover { background-color: #0056b3; }
-        .profile-header { display: flex; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #dee2e6; padding-bottom: 20px; }
-        .big-avatar { width: 100px; height: 100px; background-color: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; border: 3px solid #007bff; margin-right: 20px; }
-        .profile-info-row { display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 15px; }
-        .profile-info-row span { font-size: 18px; color: #007bff; font-weight: bold; }
-        .btn-small { background-color: transparent; border: 1px solid #007bff; color: #007bff; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-small:hover { background-color: #007bff; color: white; }
-        .back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; font-weight: bold; text-align: center; width: 100%; }
-        .back-link:hover { text-decoration: underline; }
+        .btn-secondary { background-color: transparent; color: #007bff; border: 1px solid #007bff; margin-top: 10px; }
+        .btn-secondary:hover { background-color: #e3f2fd; color: #0056b3; }
         .hidden { display: none; }
+        
+        .avatar-selection { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .avatar-option { width: 50px; height: 50px; background-color: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 3px solid transparent; }
+        .avatar-option.selected { border-color: #007bff; background-color: #cce5ff; }
+
+        .profile-info { text-align: center; margin-bottom: 20px; }
+        .big-avatar { width: 100px; height: 100px; background-color: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; border: 3px solid #007bff; margin: 0 auto 10px; }
     </style>
 </head>
 <body>
 
     <div class="profile-container">
+        
+        <!-- ЭКРАН ВХОДА -->
+        <div id="login-screen">
+            <h1 class="title">Вход в TONI</h1>
+            <div class="form-group">
+                <label>ID (латиницей)</label>
+                <input type="text" id="login-id" placeholder="Например, spiderman_01">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="login-password" placeholder="Твой пароль">
+            </div>
+            <button class="btn" onclick="login()">Войти</button>
+            <button class="btn btn-secondary" onclick="showRegister()">Создать новый аккаунт</button>
+            <a href="/" style="display:block; text-align:center; margin-top:15px; color:#007bff;">← На главную</a>
+        </div>
+
         <!-- ЭКРАН РЕГИСТРАЦИИ -->
-        <div id="register-screen">
-            <h1 class="register-title">Регистрация в TONI</h1>
-            <p class="register-subtitle">Выбери аватарку, придумай имя, ID и почту</p>
-            
+        <div id="register-screen" class="hidden">
+            <h1 class="title">Регистрация</h1>
             <div class="avatar-selection" id="avatar-picker">
                 <div class="avatar-option selected" onclick="selectAvatar(this, '👤')">👤</div>
                 <div class="avatar-option" onclick="selectAvatar(this, '😎')">😎</div>
@@ -44,144 +54,152 @@
                 <div class="avatar-option" onclick="selectAvatar(this, '🕷️')">🕷️</div>
                 <div class="avatar-option" onclick="selectAvatar(this, '⚡')">⚡</div>
             </div>
-
-            <div class="form-group">
-                <label>Имя</label>
-                <input type="text" id="reg-name" placeholder="Например, Питер">
-            </div>
-            <div class="form-group">
-                <label>ID (латиницей)</label>
-                <input type="text" id="reg-id" placeholder="Например, spiderman_01">
-            </div>
-            <div class="form-group">
-                <label>Почта</label>
-                <input type="email" id="reg-email" placeholder="example@mail.com">
-            </div>
-            
+            <div class="form-group"><label>Имя</label><input type="text" id="reg-name" placeholder="Например, Питер"></div>
+            <div class="form-group"><label>ID (латиницей)</label><input type="text" id="reg-id" placeholder="spiderman_01"></div>
+            <div class="form-group"><label>Почта</label><input type="email" id="reg-email" placeholder="example@mail.com"></div>
+            <div class="form-group"><label>Пароль</label><input type="password" id="reg-password" placeholder="примай пароль"></div>
             <button class="btn" onclick="register()">Создать аккаунт</button>
-            <a href="/" class="back-link">← Вернуться в чат</a>
+            <button class="btn btn-secondary" onclick="showLogin()">У меня уже есть аккаунт</button>
+        </div>
+
+        <!-- ЭКРАН УСТАНОВКИ ПАРОЛЯ (Для старых аккаунтов) -->
+        <div id="set-password-screen" class="hidden">
+            <h1 class="title">Установи пароль</h1>
+            <p style="text-align:center; color:#6c757d;">Мы обновили безопасность! Придумай пароль для своего аккаунта, чтобы защитить его.</p>
+            <div class="form-group">
+                <label>Новый пароль</label>
+                <input type="password" id="new-password" placeholder="Придумай пароль">
+            </div>
+            <button class="btn" onclick="saveNewPassword()">Сохранить пароль</button>
         </div>
 
         <!-- ЛИЧНЫЙ КАБИНЕТ -->
         <div id="profile-screen" class="hidden">
-            <div class="profile-header">
+            <div class="profile-info">
                 <div class="big-avatar" id="display-avatar">👤</div>
-                <div>
-                    <h2 style="margin:0; color: #007bff;">Мой профиль</h2>
-                    <p style="margin:5px 0 0 0; color:#6c757d;">Добро пожаловать в систему!</p>
-                </div>
+                <h2 style="margin:0; color: #007bff;" id="display-name">Имя</h2>
+                <p style="margin:5px 0 0 0; color:#6c757d;" id="display-id">@id</p>
             </div>
-
-            <div class="profile-info-row">
-                <div>Аватарка: <span id="display-avatar-text">👤</span></div>
-                <button class="btn-small" onclick="alert('Смена аватарки будет позже!')">Выбрать</button>
-            </div>
-            <div class="profile-info-row">
-                <div>Имя: <span id="display-name">...</span></div>
-                <button class="btn-small" onclick="alert('Смена имени будет позже!')">Сменить имя</button>
-            </div>
-            <div class="profile-info-row">
-                <div>ID: <span id="display-id">...</span></div>
-                <button class="btn-small" onclick="alert('Смена ID будет позже!')">Сменить ID</button>
-            </div>
-            <div class="profile-info-row">
-                <div>Почта: <span id="display-email">...</span></div>
-                <button class="btn-small" onclick="alert('Смена почты будет позже!')">Сменить почту</button>
-            </div>
-
-            <button class="btn" onclick="changeAccount()" style="background-color: #6c757d; margin-top: 20px;">Выйти из аккаунта</button>
-            <a href="/" class="back-link">← Вернуться в чат</a>
+            <button class="btn" onclick="logout()" style="background-color: #6c757d;">Выйти из аккаунта</button>
+            <a href="/" style="display:block; text-align:center; margin-top:15px; color:#007bff;">← Вернуться в чат</a>
         </div>
     </div>
 
     <script>
         var currentAvatar = '👤';
+        var tempUserId = null;
 
-        // Функция выбора аватарки
+        // При загрузке проверяем, залогинен ли пользователь (по старым данным в localStorage)
+        window.onload = function() {
+            var savedId = localStorage.getItem('toni_user_id');
+            if (savedId) {
+                // Если ID есть, показываем профиль (пока без проверки пароля при перезагрузке, для удобства)
+                showProfile(localStorage.getItem('toni_name'), localStorage.getItem('toni_id'), localStorage.getItem('toni_avatar'));
+            }
+        };
+
+        function showRegister() { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('register-screen').classList.remove('hidden'); }
+        function showLogin() { document.getElementById('register-screen').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
+
         function selectAvatar(element, emoji) {
             var options = document.querySelectorAll('.avatar-option');
-            for (var i = 0; i < options.length; i++) {
-                options[i].classList.remove('selected');
-            }
+            for (var i = 0; i < options.length; i++) { options[i].classList.remove('selected'); }
             element.classList.add('selected');
             currentAvatar = emoji;
         }
 
-        // При загрузке страницы проверяем, есть ли сохраненный профиль
-        window.onload = function() {
-            var savedName = localStorage.getItem('toni_name');
-            var savedId = localStorage.getItem('toni_id');
-            var savedAvatar = localStorage.getItem('toni_avatar');
-            var savedEmail = localStorage.getItem('toni_email');
-            
-            if (savedName && savedId) {
-                showProfile(savedName, savedId, savedAvatar || '👤', savedEmail || '');
-            }
-        };
+        function login() {
+            var id = document.getElementById('login-id').value.trim();
+            var pw = document.getElementById('login-password').value;
+            if (!id || !pw) { alert("Заполни все поля!"); return; }
 
-        // Функция регистрации
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: id, password: pw})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) { alert(data.error); }
+                else if (data.need_password) {
+                    // Старый пользователь без пароля
+                    tempUserId = data.user_id;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('set-password-screen').classList.remove('hidden');
+                } else {
+                    // Успешный вход
+                    localStorage.setItem('toni_user_id', data.user_id);
+                    localStorage.setItem('toni_name', data.name);
+                    localStorage.setItem('toni_id', data.username);
+                    localStorage.setItem('toni_avatar', data.avatar);
+                    showProfile(data.name, data.username, data.avatar);
+                }
+            });
+        }
+
+        function saveNewPassword() {
+            var pw = document.getElementById('new-password').value;
+            if (pw.length < 4) { alert("Пароль слишком короткий!"); return; }
+
+            fetch('/api/set_password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: tempUserId, password: pw})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    alert("Пароль установлен! Теперь можешь входить.");
+                    localStorage.setItem('toni_user_id', data.user_id);
+                    localStorage.setItem('toni_name', data.name);
+                    localStorage.setItem('toni_id', data.username);
+                    localStorage.setItem('toni_avatar', data.avatar);
+                    showProfile(data.name, data.username, data.avatar);
+                }
+            });
+        }
+
         function register() {
             var name = document.getElementById('reg-name').value.trim();
             var id = document.getElementById('reg-id').value.trim();
             var email = document.getElementById('reg-email').value.trim();
-            var avatar = currentAvatar;
+            var pw = document.getElementById('reg-password').value;
 
-            if (name === "" || id === "" || email === "") {
-                alert("Пожалуйста, заполни все поля!");
-                return;
-            }
+            if (!name || !id || !email || !pw) { alert("Заполни все поля!"); return; }
 
             fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name: name, username: id, email: email, avatar: avatar, password: "123"})
+                body: JSON.stringify({name: name, username: id, email: email, password: pw, avatar: currentAvatar})
             })
             .then(res => res.json())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
+                if (data.error) { alert(data.error); }
+                else {
                     localStorage.setItem('toni_user_id', data.user_id);
                     localStorage.setItem('toni_name', name);
                     localStorage.setItem('toni_id', id);
-                    localStorage.setItem('toni_avatar', avatar);
-                    localStorage.setItem('toni_email', email);
-                    showProfile(name, id, avatar, email);
+                    localStorage.setItem('toni_avatar', currentAvatar);
+                    showProfile(name, id, currentAvatar);
                 }
-            })
-            .catch(err => {
-                alert("Ошибка сервера. Попробуй еще раз.");
-                console.error(err);
             });
         }
 
-        // Функция показа профиля
-        function showProfile(name, id, avatar, email) {
-            document.getElementById('register-screen').style.display = 'none';
+        function showProfile(name, id, avatar) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('register-screen').classList.add('hidden');
+            document.getElementById('set-password-screen').classList.add('hidden');
             document.getElementById('profile-screen').classList.remove('hidden');
             
             document.getElementById('display-avatar').innerText = avatar;
-            document.getElementById('display-avatar-text').innerText = avatar;
             document.getElementById('display-name').innerText = name;
             document.getElementById('display-id').innerText = "@" + id;
-            if(document.getElementById('display-email')) {
-                document.getElementById('display-email').innerText = email;
-            }
         }
 
-        // Функция выхода
-        function changeAccount() {
-            localStorage.removeItem('toni_user_id');
-            localStorage.removeItem('toni_name');
-            localStorage.removeItem('toni_id');
-            localStorage.removeItem('toni_avatar');
-            localStorage.removeItem('toni_email');
-            document.getElementById('profile-screen').classList.add('hidden');
-            document.getElementById('register-screen').style.display = 'block';
-            document.getElementById('reg-name').value = '';
-            document.getElementById('reg-id').value = '';
-            document.getElementById('reg-email').value = '';
+        function logout() {
+            localStorage.clear();
+            location.reload();
         }
     </script>
 </body>
-</html> <
+</html>
