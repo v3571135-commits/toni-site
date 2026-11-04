@@ -227,6 +227,34 @@
             localStorage.clear();
             location.reload();
         }
+        function updateProfile(field) {
+            var userId = localStorage.getItem('toni_user_id');
+            var newValue = '';
+
+            if (field === 'name') newValue = document.getElementById('new-name').value.trim();
+            if (field === 'username') newValue = document.getElementById('new-id').value.trim();
+            if (field === 'avatar') newValue = currentAvatar;
+
+            if (!newValue) { alert("Заполни поле!"); return; }
+
+            fetch('/api/update_profile', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId, field: field, value: newValue})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert("Успешно изменено!");
+                    if (field === 'name') localStorage.setItem('toni_name', newValue);
+                    if (field === 'username') localStorage.setItem('toni_id', newValue);
+                    if (field === 'avatar') localStorage.setItem('toni_avatar', newValue);
+                    location.reload(); // Перезагружаем страницу, чтобы увидеть изменения
+                }
+            });
+        }
     </script>
 </body>
 </html>
