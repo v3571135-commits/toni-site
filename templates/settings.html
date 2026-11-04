@@ -37,18 +37,18 @@
         <!-- Список звуков (появляется, если включены уведомления) -->
         <div id="sound-settings" style="display: none; padding: 15px 0; border-bottom: 1px solid #333;">
             <div style="color: #ccc; margin-bottom: 10px;">Выбери звук уведомления:</div>
-            <div class="sound-list">
+           <div class="sound-list">
                 <div class="sound-item">
-                    <span>Звук 1</span>
-                    <button class="play-btn" onclick="playSound('sound1.mp3')">▶ Играть</button>
+                    <span>Звук 1 (Классика)</span>
+                    <button class="play-btn" onclick="chooseSound('sound1.mp3')">▶ Выбрать</button>
                 </div>
                 <div class="sound-item">
-                    <span>Звук 2</span>
-                    <button class="play-btn" onclick="playSound('sound2.mp3')">▶ Играть</button>
+                    <span>Звук 2 (Синтезатор)</span>
+                    <button class="play-btn" onclick="chooseSound('sound2.mp3')">▶ Выбрать</button>
                 </div>
                 <div class="sound-item">
-                    <span>Звук 3</span>
-                    <button class="play-btn" onclick="playSound('sound3.mp3')">▶ Играть</button>
+                    <span>Звук 3 (Писк Тони)</span>
+                    <button class="play-btn" onclick="chooseSound('sound3.mp3')">▶ Выбрать</button>
                 </div>
             </div>
             </div>
@@ -67,6 +67,7 @@
 
     <script>
         function toggleNotifications(checkbox) {
+            localStorage.setItem('toni_notifications', checkbox.checked);
             var soundSettings = document.getElementById('sound-settings');
             if (checkbox.checked) {
                 // Запрашиваем разрешение у браузера
@@ -93,6 +94,21 @@
             let audio = new Audio('/static/' + fileName); 
             audio.play().catch(e => alert("Ошибка: звук не найден. Убедись, что файл загружен в папку static на GitHub."));
         }
+        function chooseSound(fileName) {
+            let audio = new Audio('/static/' + fileName); 
+            audio.play().catch(e => alert("Ошибка: звук не найден."));
+            localStorage.setItem('toni_sound', fileName);
+            alert("Звук выбран и сохранен!");
+        }
+
+        // При загрузке проверяем, включены ли уведомления, и показываем список
+        window.onload = function() {
+            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
+            if (isNotifOn) {
+                document.getElementById('notif-toggle').checked = true;
+                document.getElementById('sound-settings').style.display = 'block';
+            }
+        };
     </script>
 </body>
 </html>
