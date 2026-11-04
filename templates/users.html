@@ -41,6 +41,40 @@
         
         .empty-chat { display: flex; align-items: center; justify-content: center; height: 100%; color: #6c757d; font-size: 18px; }
         .note-desc { color: #6c757d; font-size: 13px; font-weight: normal; }
+        /* Адаптивность для телефонов */
+        max-width: 768px {
+            body {
+                flex-direction: column; /* Меню сверху, контент снизу */
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row; /* Кнопки меню в ряд */
+                overflow-x: auto;
+                border-right: none;
+                border-bottom: 2px solid #007bff;
+                padding: 10px;
+            }
+            .sidebar a {
+                white-space: nowrap;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .main-content {
+                flex-direction: column; /* Список чатов и окно чата друг под другом */
+            }
+            .chat-list {
+                width: 100%; /* Список чатов на всю ширину */
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+                max-height: 40vh; /* Ограничиваем высоту списка, чтобы было видно чат */
+            }
+            .chat-window {
+                width: 100%; /* Окно чата на всю ширину */
+            }
+            .empty-chat {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
