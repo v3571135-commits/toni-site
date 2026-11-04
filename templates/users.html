@@ -193,6 +193,8 @@
 
         function loadMessages() {
             if (currentChatId === null) return;
+            
+            // Если это заметки (0), то ищем сообщения для себя
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
@@ -217,6 +219,7 @@
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
             
+            // Если это заметки, отправляем самому себе
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
