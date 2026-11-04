@@ -40,7 +40,7 @@ class Review(db.Model):
   rating = db.Column(db.Integer, nullable=False)
   text = db.Column(db.Text, nullable=False)
 
-  with app.app_context():
+with app.app_context():
   db.create_all()
 
 # —- ОГРОМНЫЙ СЛОВАРЬ ТОНИ —-
