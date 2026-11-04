@@ -39,7 +39,9 @@
         <a href="/subscription" class="menu-link">Подписка</a>
         <a href="/history" class="menu-link">История</a>
         <a href="/reviews" class="menu-link">Отзывы</a>
-        <a href="/users" class="menu-link">Другие пользователи</a>
+        <a href="/users" class="menu-link" style="position: relative;">
+    <span id="main-unread-badge" style="display: none; position: absolute; top: 5px; right: 10px; width: 10px; height: 10px; background: red; border-radius: 50%; border: 2px solid white;"> Другие пользователи</span>
+</a>
     </div>
 
     <div class="main-content">
@@ -107,6 +109,32 @@
                 chatBox.innerHTML += `<div class="message toni-msg" style="color:red;">Тони: Ошибка сети</div>`;
             }
             chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        // Проверка уведомлений на главной странице
+        var myUserId = parseInt(localStorage.getItem('toni_user_id'));
+        
+        function checkMainNotifications() {
+            if (!myUserId) return;
+            
+            fetch('/api/chats/' + myUserId)
+            .then(function(res) { return res.json(); })
+            .then(function(chats) {
+                var hasUnread = false;
+                for (var i = 0; i < chats.length; i++) {
+                    if (chats[i].unread) hasUnread = true;
+                }
+                
+                var badge = document.getElementById('main-unread-badge');
+                if (badge) {
+                    badge.style.display = hasUnread ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Запускаем проверку каждые 3 секунды, если пользователь авторизован
+        if (myUserId) {
+            setInterval(checkMainNotifications, 3000);
+            checkMainNotifications(); // Первый запуск
         }
     </script>
 </body>
