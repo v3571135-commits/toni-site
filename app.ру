@@ -288,6 +288,27 @@ def set_password():
         return jsonify({'status': 'ok', 'user_id': user.id, 'name': user.name, 'avatar': user.avatar, 'username': user.username})
     return jsonify({'error': 'Ошибка'})
 
+@app.route('/api/update_profile', methods=['POST'])
+def update_profile():
+    data = request.json
+    user = db.session.get(User, data['user_id'])
+    
+    if not user:
+        return jsonify({'error': 'Пользователь не найден'})
+
+    if data['field'] == 'name':
+        user.name = data['value']
+    elif data['field'] == 'avatar':
+        user.avatar = data['value']
+    elif data['field'] == 'username':
+        # Проверяем, не занят ли новый ID
+        if User.query.filter_by(username=data['value']).first():
+            return jsonify({'error': 'Этот ID уже занят!'})
+        user.username = data['value']
+        
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
