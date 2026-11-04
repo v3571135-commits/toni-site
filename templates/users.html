@@ -55,7 +55,10 @@
 <body>
     <div class="sidebar">
         <a href="/profile">👤 Профиль</a>
-        <a href="/users" style="background-color: #007bff; color: white;">💬 Мои чаты</a>
+        <a href="/users" style="background-color: #007bff; color: white; position: relative;">
+            💬 Мои чаты
+            <span id="menu-unread-badge" style="display: none; position: absolute; top: 8px; right: 15px; width: 12px; height: 12px; background: red; border-radius: 50%; border: 2px solid white;"></span>
+        </a>
         <a onclick="openChat(0, 'Заметки', '🔒')">📝 Заметки</a>
         <a href="/">← На главную</a>
     </div>
@@ -111,28 +114,24 @@
             window.location.href = "/profile";
         }
 
-        function loadChatList() {
+       function loadChatList() {
             fetch('/api/chats/' + myUserId)
             .then(function(res) { return res.json(); })
             .then(function(chats) {
                 var listDiv = document.getElementById('active-chats-list');
+                var hasUnread = false; // Флаг непрочитанных
                 listDiv.innerHTML = '';
 
                 chats.forEach(function(c) {
-                    var unreadClass = c.unread ? 'show' : '';
-                    var activeClass = (currentChatId === c.id) ? 'active' : '';
-                    
-                    listDiv.innerHTML += `
-                        <div class="chat-item ${activeClass}" onclick="openChat(${c.id}, '${c.name}', '${c.avatar}')">
-                            <div style="font-size: 24px;">${c.avatar}</div>
-                            <div class="chat-info">
-                                <div class="chat-name">${c.name}</div>
-                                <div class="chat-desc">@${c.username}</div>
-                            </div>
-                            <div class="unread-badge ${unreadClass}"></div>
-                        </div>
-                    `;
+                    if (c.unread) hasUnread = true; // Если есть хоть одно непрочитанное
+                    // ... (твой код отрисовки чатов) ...
                 });
+
+                // Показываем или скрываем кружок на кнопке "Мои чаты" (в левом меню)
+                var menuBadge = document.getElementById('menu-unread-badge');
+                if (menuBadge) {
+                    menuBadge.style.display = hasUnread ? 'block' : 'none';
+                }
             });
         }
 
@@ -193,10 +192,10 @@
             }, 2000);
         }
 
-      function loadMessages() {
+     var lastMessageId = 0; // Запоминаем ID последнего сообщения
+
+        function loadMessages() {
             if (currentChatId === null) return;
-            
-            // Если currentChatId = 0, значит мы в заметках. Ищем сообщения для себя.
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
@@ -206,18 +205,35 @@
                 var wasAtBottom = box.scrollHeight - box.scrollTop === box.clientHeight;
                 
                 box.innerHTML = '';
+                
                 for (var i = 0; i < msgs.length; i++) {
                     var m = msgs[i];
                     var isMine = (m.sender_id === myUserId);
                     var cls = isMine ? 'my' : 'their';
                     
-                    // Защита от HTML-кода
+                    // Если сообщение новое и не от нас — играем звук!
+                    if (m.id > lastMessageId && !isMine) {
+                        playNotificationSound();
+                    }
+                    
                     var safeText = m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     box.innerHTML += '<div class="msg ' + cls + '">' + safeText + '</div>';
+                    
+                    // Запоминаем ID последнего сообщения
+                    if (m.id > lastMessageId) lastMessageId = m.id;
                 }
                 
                 if (wasAtBottom) box.scrollTop = box.scrollHeight;
             });
+        }
+
+        function playNotificationSound() {
+            var isNotifOn = localStorage.getItem('toni_notifications') === 'true';
+            if (isNotifOn) {
+                var sound = localStorage.getItem('toni_sound') || 'sound1.mp3';
+                var audio = new Audio('/static/' + sound);
+                audio.play().catch(e => console.log("Звук не найден"));
+            }
         }
 
        function sendMsg() {
