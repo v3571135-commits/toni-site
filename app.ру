@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_toni'
@@ -21,6 +22,9 @@ class User(db.Model):
     avatar = db.Column(db.String(100), default='👤')
     coins = db.Column(db.Integer, default=0) 
     vintiki = db.Column(db.Integer, default=0) 
+    password = db.Column(db.String(100), nullable=True) # оставляем для старых, но не используем
+    password_hash = db.Column(db.String(200), nullable=True) # НОВОЕ
+    has_password = db.Column(db.Boolean, default=False) # НОВОЕ
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -257,10 +261,50 @@ def register():
     data = request.json
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Этот ID уже занят!'})
-    new_user = User(username=data['username'], name=data['name'], email=data['email'], password=data.get('password', '123'), avatar=data['avatar'])
+    
+    # Шифруем пароль
+    hashed_pw = generate_password_hash(data.get('password', '123'))
+    
+    new_user = User(
+        username=data['username'], 
+        name=data['name'], 
+        email=data['email'], 
+        password_hash=hashed_pw, 
+        has_password=True, # При регистрации пароль сразу есть
+        avatar=data['avatar']
+    )
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'status': 'ok', 'user_id': new_user.id})
+
+@app.route('/api/set_password', methods=['POST'])
+def set_password():
+    data = request.json
+    user = db.session.get(User, data['user_id'])
+    if user:
+        user.password_hash = generate_password_hash(data['password'])
+        user.has_password = True
+        db.session.commit()
+        return jsonify({'status': 'ok', 'user_id': user.id, 'name': user.name, 'avatar': user.avatar, 'username': user.username})
+    return jsonify({'error': 'Ошибка'})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    user = User.query.filter_by(username=data['username']).first()
+    
+    if not user:
+        return jsonify({'error': 'Пользователь не найден'})
+        
+    # Если у пользователя еще нет пароля (старый аккаунт)
+    if not user.has_password:
+        return jsonify({'need_password': True, 'user_id': user.id, 'name': user.name, 'avatar': user.avatar})
+        
+    # Если пароль есть, проверяем его
+    if check_password_hash(user.password_hash, data['password']):
+        return jsonify({'status': 'ok', 'user_id': user.id, 'name': user.name, 'avatar': user.avatar, 'username': user.username})
+    else:
+        return jsonify({'error': 'Неверный пароль'})
 
 @app.route('/api/search_users', methods=['POST'])
 def search_users():
