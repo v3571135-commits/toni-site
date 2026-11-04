@@ -39,20 +39,18 @@
             <div style="color: #ccc; margin-bottom: 10px;">Выбери звук уведомления:</div>
             <div class="sound-list">
                 <div class="sound-item">
-                    <span>Звук 1 (Классика)</span>
-                    <button class="play-btn" onclick="alert('Играет звук 1! (Функция в
-
-
-ке)')">▶ Играть</button>
+                    <span>Звук 1</span>
+                    <button class="play-btn" onclick="playSound('sound1.mp3')">▶ Играть</button>
                 </div>
                 <div class="sound-item">
-                    <span>Звук 2 (Синтезатор)</span>
-                    <button class="play-btn" onclick="alert('Играет звук 2! (Функция в разработке)')">▶ Играть</button>
+                    <span>Звук 2</span>
+                    <button class="play-btn" onclick="playSound('sound2.mp3')">▶ Играть</button>
                 </div>
                 <div class="sound-item">
-                    <span>Звук 3 (Писк Тони)</span>
-                    <button class="play-btn" onclick="alert('Играет звук 3! (Функция в разработке)')">▶ Играть</button>
+                    <span>Звук 3</span>
+                    <button class="play-btn" onclick="playSound('sound3.mp3')">▶ Играть</button>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -90,6 +88,10 @@
             } else {
                 soundSettings.style.display = 'none';
             }
+        }
+        function playSound(fileName) {
+            let audio = new Audio('/static/' + fileName); 
+            audio.play().catch(e => alert("Ошибка: звук не найден. Убедись, что файл загружен в папку static на GitHub."));
         }
     </script>
 </body>
