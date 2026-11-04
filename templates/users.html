@@ -219,9 +219,11 @@
             });
         }
 
-        function sendMsg() {
+       function sendMsg() {
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
+            
+            // Если currentChatId равен 0, значит мы в Заметках. Отправляем самому себе.
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
@@ -234,7 +236,6 @@
                 loadChatList(); 
             });
         }
-
         window.onload = function() {
             loadChatList();
         };
