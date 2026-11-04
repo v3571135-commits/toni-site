@@ -102,6 +102,19 @@
                     </div>
                 </div>
             </div>
+            <div class="chats-container" id="chats-container">
+                <!-- Заметки -->
+                <div class="chat-item" onclick="openChat(0, 'Заметки', '🔒')">
+                    <div style="font-size: 24px;">🔒</div>
+                    <div>
+                        <div style="font-weight: bold; color: #333;">Заметки</div>
+                        <div class="note-desc">Твой личный блокнот</div>
+                    </div>
+                </div>
+                
+                <!-- СЮДА БУДУТ ДОБАВЛЯТЬСЯ ЧАТЫ -->
+                <div id="active-chats-list"></div>
+            </div>
         </div>
 
         <div class="chat-window">
@@ -124,7 +137,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
         var currentChatId = null;
         var updateInterval = null;
@@ -134,7 +147,30 @@
             window.location.href = "/profile";
         }
 
-       function searchUsers() {
+        // Загрузка списка чатов (кого мы искали и кому писали)
+        function loadChatList() {
+            var savedChats = localStorage.getItem('toni_active_chats');
+            var chats = savedChats ? JSON.parse(savedChats) : [];
+            var listDiv = document.getElementById('active-chats-list');
+            listDiv.innerHTML = '';
+
+            if (chats.length === 0) return;
+
+            chats.forEach(function(chat) {
+                listDiv.innerHTML += `
+                    <div class="chat-item" onclick="openChat(${chat.id}, '${chat.name}', '${chat.avatar}')">
+                        <div style="font-size: 24px;">${chat.avatar}</div>
+                        <div>
+                            <div style="font-weight: bold; color: #333;">${chat.name}</div>
+                            <div class="note-desc">@${chat.username}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Поиск пользователей
+        function searchUsers() {
             var query = document.getElementById('search-input').value.trim();
             var resDiv = document.getElementById('search-results');
             
@@ -153,25 +189,25 @@
             .then(function(res) { return res.json(); })
             .then(function(users) {
                 resDiv.innerHTML = '';
-                // Если ничего не нашли
                 if (users.length === 0) {
                     resDiv.innerHTML = '<div style="padding:10px; color:#888;">Пользователь не найден</div>';
                     return;
                 }
-                // Если нашли
                 for (var i = 0; i < users.length; i++) {
                     var u = users[i];
-                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\')">' +
+                    resDiv.innerHTML += '<div class="search-item" onclick="openChat(' + u.id + ', \'' + u.name + '\', \'' + u.avatar + '\', \'' + u.username + '\')">' +
                         '<span style="font-size: 20px;">' + u.avatar + '</span>' +
                         '<div><b>' + u.name + '</b> <small style="color:#6c757d;">@' + u.username + '</small></div></div>';
                 }
             })
             .catch(function(err) {
-                resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера. Проверь консоль (F12).</div>';
+                resDiv.innerHTML = '<div style="padding:10px; color:red;">Ошибка сервера</div>';
                 console.log(err);
             });
         }
-        function openChat(id, name, avatar) {
+
+        // Открытие чата
+        function openChat(id, name, avatar, username) {
             currentChatId = id;
             
             document.getElementById('search-results').innerHTML = '';
@@ -184,16 +220,31 @@
             document.getElementById('header-name').innerText = name;
             document.getElementById('header-id').innerText = id === 0 ? "Личное" : "ID: " + id;
             
+            // СОХРАНЯЕМ ЧАТ В СПИСОК АКТИВНЫХ (если это не заметки)
+            if (id !== 0) {
+                var savedChats = localStorage.getItem('toni_active_chats');
+                var chats = savedChats ? JSON.parse(savedChats) : [];
+                // Проверяем, есть ли уже такой чат
+                var exists = chats.find(function(c) { return c.id === id; });
+                if (!exists) {
+                    chats.push(
+
+
+d: id, name: name, avatar: avatar, username: username || ''});
+                    localStorage.setItem('toni_active_chats', JSON.stringify(chats));
+                    loadChatList(); // Обновляем список
+                }
+            }
+
             loadMessages();
             
             if (updateInterval) clearInterval(updateInterval);
             updateInterval = setInterval(loadMessages, 2000);
         }
 
+        // Загрузка сообщений
         function loadMessages() {
             if (currentChatId === null) return;
-            
-            // Если это заметки (0), то ищем сообщения для себя
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/' + myUserId + '/' + targetId)
@@ -214,11 +265,10 @@
             });
         }
 
+        // Отправка
         function sendMsg() {
             var text = document.getElementById('msg-input').value.trim();
             if (!text || currentChatId === null) return;
-            
-            // Если это заметки, отправляем самому себе
             var targetId = (currentChatId === 0) ? myUserId : currentChatId;
 
             fetch('/api/messages/send', {
@@ -230,6 +280,11 @@
                 loadMessages();
             });
         }
+
+        // При загрузке страницы показываем сохраненные чаты
+        window.onload = function() {
+            loadChatList();
+        };
     </script>
 </body>
 </html>
