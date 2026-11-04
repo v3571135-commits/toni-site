@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = 'super_secret_key_toni'
 
 # Твоя ссылка на Supabase (без лишних скобок)
-DB_URL = 'postgresql://postgres:V_verb194519@db.wzuolaqoeiutxjhfatqr.supabase.co:5432/postgres'
+DB_URL = 'postgresql+psycopg2://postgres:V_verb194519@db.wzuolaqoeiutxjhfatqr.supabase.co:5432/postgres'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
