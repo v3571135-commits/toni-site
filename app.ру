@@ -442,7 +442,7 @@ def main_feed():
     for a in anketas:
         u = db.session.get(User, a.user_id)
         if u:
-            anketa_list.append({'id': a.id, 'theme': a.theme, 'desc': a.description, 'author': u.name, 'avatar': u.avatar, 'user_id': u.id,     'image_url': a.image_url # <-- ДОБАВИЛИ ЭТО})
+            anketa_list.append({'id': a.id, 'theme': a.theme, 'desc': a.description, 'author': u.name, 'avatar': u.avatar, 'user_id': u.id,     'image_url': a.image_url # <-- ДОБАВИЛИ ЭТО })
 
     return jsonify({'top': top_list, 'posts': post_list, 'anketas': anketa_list})
 
