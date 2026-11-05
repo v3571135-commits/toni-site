@@ -7,55 +7,54 @@
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; height: 100vh; overflow: hidden; }
         
-        .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #007bff; flex-shrink: 0; }
+        .sidebar { width: 220px; background-color: #ffffff; padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #007bff; flex-shrink: 0; overflow-y: auto; }
         .sidebar a { color: #007bff; text-decoration: none; background-color: #f8f9fa; padding: 10px; border-radius: 20px; text-align: center; font-weight: bold; border: 1px solid #dee2e6; cursor: pointer; position: relative; display: block; margin-bottom: 5px;}
         .sidebar a:hover { background-color: #007bff; color: white; }
         
         .main-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
         
+        .header-box { background: #fff; width: 100%; max-width: 800px; border: 2px solid #007bff; border-radius: 10px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .header-box h1 { color: #007bff; font-size: 40px; margin: 0; }
+        .robot-section { display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; }
+        .robot-section div { font-size: 60px; background: #e3f2fd; padding: 15px; border-radius: 10px; }
+        .robot-section a { color: #333; text-decoration: none; display: block; margin-bottom: 5px;}
+        .chat-container { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 15px; height: 250px; display: flex; flex-direction: column; }
+        .messages { flex: 1; overflow-y: auto; text-align: left; margin-bottom: 10px; }
+        .input-area { display: flex; gap: 10px; }
+        .input-area input { flex: 1; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px; }
+        .input-area button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+
         .section-title { font-size: 24px; font-weight: bold; color: #007bff; margin: 20px 0 10px; width: 100%; max-width: 800px; text-align: center; }
         
-        /* Выравниваем Топ по центру и делаем ровным */
         .top-users { display: flex; justify-content: center; align-items: flex-start; gap: 40px; width: 100%; max-width: 800px; margin-bottom: 30px; }
         .top-user { text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 100px; }
         .top-avatar { width: 80px; height: 80px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 3px solid #007bff; margin-bottom: 5px; }
         .top-name { font-weight: bold; color: #333; }
 
-          /* Делаем анкеты видимыми (добавляем минимальную высоту) */
-       .anketa-card { 
-            min-width: 250px; 
-            background: #fff; 
-            border: 1px solid #007bff; 
-            border-radius: 10px; 
-            padding: 15px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; /* Прижимает кнопки к низу */
-        }
-        .anketa-card { min-width: 220px; background: #fff; border: 1px solid #007bff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column;}
-        .anketa-card { min-width: 200px; background: #fff; border: 1px solid #007bff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .anketa-container { display: flex; gap: 15px; width: 100%; max-width: 800px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; min-height: 150px; align-items: stretch; }
+        .anketa-card { min-width: 250px; background: #fff; border: 1px solid #007bff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;}
         .anketa-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
         .anketa-avatar { width: 40px; height: 40px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .anketa-theme { font-weight: bold; color: #007bff; }
-        .anketa-desc { font-size: 14px; color: #555; }
+        .anketa-desc { font-size: 14px; color: #555; margin-bottom: 10px;}
 
         .post-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
         .post-card { background: #fff; border: 1px solid #dee2e6; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
-        .post-avatar { width: 50px; height: 50px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .post-avatar { width: 50px; height: 50px; background: #e9ecef;border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .post-author { font-weight: bold; color: #333; }
         .post-text { font-size: 16px; margin-bottom: 15px; }
         .post-actions { display: flex; gap: 20px; color: #6c757d; font-size: 14px; }
         .post-actions span { cursor: pointer; }
         .post-actions span:hover { color: #007bff; }
 
-        .create-post-btn { background: #007bff; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; margin-top: 20px; max-width: 800px; width: 100%; }
-        .create-post-btn:hover { background: #0056b3; }
+        .create-btn { background: #007bff; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; margin-top: 20px; max-width: 800px; width: 100%; border: none;}
+        .create-btn:hover { background: #0056b3; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; }
-        .modal-content textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin-bottom: 10px; resize: none; }
+        .modal-content input, .modal-content textarea { width: 100%; border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin-bottom: 10px; resize: none; }
+        .modal-content textarea { height: 100px; }
         .modal-btns { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-btns button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
     </style>
@@ -68,57 +67,50 @@
         <a href="/settings">⚙️ Настройки</a>
         <a href="/history">📖 История</a>
         <a href="/reviews">⭐ Отзывы</a>
-        <a href="#" onclick="alert('Раздел скоро появится!')">🎁 Подарки</a>
-        <a href="#" onclick="alert('Раздел скоро появится!')">💰 Кошелек</a>
-        <a href="#" onclick="alert('Раздел скоро появится!')">🛒 Ларёк Тони</a>
-        <a href="#" onclick="alert('Раздел скоро появится!')">🎮 Мини-игры</a>
-        <a href="#" onclick="alert('Раздел скоро появится!')">🐶 Петы</a>
+        <a href="#" onclick="alert('Скоро!')">🎁 Подарки</a>
+        <a href="#" onclick="alert('Скоро!')">💰 Кошелек</a>
+        <a href="#" onclick="alert('Скоро!')">🛒 Ларёк Тони</a>
+        <a href="#" onclick="alert('Скоро!')">🎮 Мини-игры</a>
+        <a href="#" onclick="alert('Скоро!')">🐶 Петы</a>
     </div>
 
     <div class="main-content">
         <!-- БЛОК ТОНИ -->
-        <div class="header-box" style="background: #fff; width: 100%; max-width: 800px; border: 2px solid #007bff; border-radius: 10px; padding: 20px; margin-bottom: 20px; text-align: center;">
-            <h1 style="color: #007bff; font-size: 40px; margin: 0;">TONI</h1>
+        <div class="header-box">
+            <h1>TONI</h1>
             <p style="color: #6c757d; margin: 5px 0 20px 0;">бесплатный помощник</p>
-            
-            <div class="robot-section" style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-                <div style="font-size: 60px; background: #e3f2fd; padding: 15px; border-radius: 10px;">🤖</div>
-                <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
-                    <a href="/reviews" style="color: #333; text-decoration: none;">➕ оставить отзыв</a>
-                    <a href="/reviews" style="color: #333; text-decoration: none;">➕ предложить функцию</a>
-                    <a href="/users" style="color: #333; text-decoration: none;">➕ чат с создателем</a>
+            <div class="robot-section">
+                <div>🤖</div>
+                <div style="background: none; font-size: 16px; text-align: left;">
+                    <a href="/reviews">➕ оставить отзыв</a>
+                    <a href="/reviews">➕ предложить функцию</a>
+                    <a href="/users">➕ чат с создателем</a>
                 </div>
             </div>
-
-            <div class="chat-container" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 15px; height: 300px; display: flex; flex-direction: column;">
-                <div class="messages" id="chat-box" style="flex: 1; overflow-y: auto; text-align: left; margin-bottom: 10px;">
-                    <div class="message toni-msg" style="color: #007bff; margin-bottom: 5px;">Привет! Я — Тони, твой помощник. Спроси меня о чем-нибудь.</div>
+            <div class="chat-container">
+                <div class="messages" id="chat-box">
+                    <div class="message toni-msg" style="color: #007bff; margin-bottom: 5px;">Привет! Я — Тони. Спроси меня о чем-нибудь.</div>
                 </div>
-                <div class="input-area" style="display: flex; gap: 10px;">
-                    <input type="text" id="user-input" placeholder="Напиши сообщение..." style="flex: 1; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px;" onkeypress="if(event.key==='Enter') sendMessage()">
-                    <button onclick="sendMessage()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Отправить</button>
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="Напиши сообщение..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()">Отправить</button>
                 </div>
             </div>
         </div>
-        <!-- КОНЕЦ БЛОКА ТОНИ -->
 
         <div class="section-title">ТОП</div>
         <div class="top-users" id="top-users-list"></div>
 
         <div class="section-title">АНКЕТЫ</div>
         <div class="anketa-container" id="anketas-list"></div>
-        
-        <div style="max-width: 800px; width: 100%; text-align: center; margin-bottom: 20px;">
-            <button onclick="showCreateAnketa()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 20px; cursor: pointer;">Создать анкету</button>
-        </div>
+        <button onclick="showCreateAnketa()" class="create-btn" style="max-width: 200px; padding: 10px;">Создать анкету</button>
 
         <div class="section-title">ПОСТЫ</div>
         <div class="post-container" id="posts-list"></div>
-        
-        <div class="create-post-btn" onclick="showCreatePost()">+ Создать пост</div>
+        <button onclick="showCreatePost()" class="create-btn">+ Создать пост</button>
     </div>
 
-    <!-- Модалка поста -->
+    <!-- Модалки -->
     <div class="modal" id="post-modal">
         <div class="modal-content">
             <h3>Новый пост</h3>
@@ -130,14 +122,12 @@
         </div>
     </div>
 
-    <!-- Модалка анкеты -->
     <div class="modal" id="anketa-modal">
         <div class="modal-content">
             <h3>Новая анкета</h3>
-            <input type="text" id="anketa-theme" placeholder="Тема (например, Поиск друзей)" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+            <input type="text" id="anketa-theme" placeholder="Тема (например, Поиск друзей)">
             <textarea id="anketa-desc" placeholder="Описание"></textarea>
-             <!-- ДОБАВЛЯЕМ ПОЛЕ ДЛЯ ССЫЛКИ НА ФОТО -->
-            <input type="text" id="anketa-image" placeholder="Ссылка на фото (URL) - необязательно" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+            <input type="text" id="anketa-image" placeholder="Ссылка на фото (URL) - необязательно">
             <div class="modal-btns">
                 <button onclick="closeModal('anketa-modal')">Отмена</button>
                 <button onclick="createAnketa()" style="background: #007bff; color: white;">Опубликовать</button>
@@ -148,12 +138,13 @@
     <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
 
+        // --- ЛОГИКА ТОНИ ---
         async function sendMessage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
             if (!text) return;
-
             const chatBox = document.getElementById('chat-box');
+            
             chatBox.innerHTML += `<div class="message user-msg" style="text-align: right; color: #6c757d; margin-bottom: 5px;">Ты: ${text}</div>`;
             input.value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -163,14 +154,11 @@
 
             try {
                 const response = await fetch('/ask', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({text: text})
                 });
                 const data = await response.json();
                 document.getElementById("loading").remove();
-                
-                // Выводим ответ (защита от HTML)
                 let safeAnswer = data.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 chatBox.innerHTML += `<div class="message toni-msg" style="color: #007bff; margin-bottom: 5px;">Тони: ${safeAnswer}</div>`;
             } catch (e) {
@@ -179,11 +167,14 @@
             }
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-        // Загрузка главной страницы
+
+        // --- ЛОГИКА ЗАГРУЗКИ ГЛАВНОЙ ---
         function loadMainFeed() {
             fetch('/api/main_feed')
             .then(res => res.json())
             .then(data => {
+                if(data.error) { console.error(data.error); return; }
+
                 // Топ
                 var topDiv = document.getElementById('top-users-list');
                 topDiv.innerHTML = '';
@@ -196,56 +187,47 @@
                     </div>`;
                 });
 
-            // Анкеты
+                // Анкеты
                 var ankDiv = document.getElementById('anketas-list');
                 ankDiv.innerHTML = '';
                 if (data.anketas.length === 0) {
-                    ankDiv.innerHTML = '<div style="padding: 20px; color: #888;">Анкет пока нет. Создай первую!</div>';
+                    ankDiv.innerHTML = '<div style="padding: 20px; color: #888;">Анкет пока нет.</div>';
                 } else {
-                  for (var i = 0; i < data.anketas.length; i++) {
-                        var a = data.anketas[i];
-                        var isAuthor = (parseInt(localStorage.getItem('toni_user_id')) === a.user_id);
-                        
+                    data.anketas.forEach(a => {
+                        var isAuthor = (myUserId === a.user_id);
                         var authorBtns = isAuthor ? `
                             <div style="display:flex; gap:5px; margin-top:10px;">
-                                <button onclick="alert('Редактирование скоро!')" style="flex:1; padding:5px; background:#ffc107; color:#000; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
+                                <button onclick="alert('Скоро!')" style="flex:1; padding:5px; background:#ffc107; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
                                 <button onclick="deleteAnketa(${a.id})" style="flex:1; padding:5px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Удалить</button>
                             </div>
                         ` : '';
-
-                        // Блок с картинкой (если она есть)
                         var imgHtml = a.image_url ? `<img src="${a.image_url}" style="width:100%; border-radius:5px; margin-bottom:10px; max-height:150px; object-fit:cover;">` : '';
 
-                        ankDiv.innerHTML += '<div class="anketa-card">' +
-                            '<div class="anketa-header" onclick="openProfile(' + a.user_id + ')">' +
-                                '<div class="anketa-avatar">' + a.avatar + '</div>' +
-                                '<div class="anketa-theme">' + a.author + '</div>' +
-                            '</div>' +
-                            imgHtml + // <-- ВСТАВЛЯЕМ КАРТИНКУ
-                            '<div style="font-weight:bold; margin-bottom:5px;">' + a.theme + '</div>' +
-                            '<div class="anketa-desc" style="flex:1; margin-bottom:10px;">' + a.desc + '</div>' +
-                            '<button onclick="writeToUser(' + a.user_id + ')" style="width:100%; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; margin-bottom:10px;">✉️ Написать</button>' +
-                            authorBtns +
-                        '</div>';
-                    }
+                        ankDiv.innerHTML += `<div class="anketa-card">
+                            <div class="anketa-header" onclick="openProfile(${a.user_id})">
+                                <div class="anketa-avatar">${a.avatar}</div>
+                                <div class="anketa-theme">${a.author}</div>
+                            </div>
+                            ${imgHtml}
+                            <div style="font-weight:bold; margin-bottom:5px;">${a.theme}</div>
+                            <div class="anketa-desc" style="flex:1;">${a.desc}</div>
+                            <button onclick="writeToUser(${a.user_id})" style="width:100%; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; margin-bottom:10px;">✉️ Написать</button>
+                            ${authorBtns}
+                        </div>`;
+                    });
+                }
 
                 // Посты
                 var postDiv = document.getElementById('posts-list');
                 postDiv.innerHTML = '';
-               // Посты
-                var postDiv = document.getElementById('posts-list');
-                postDiv.innerHTML = '';
-                for (var i = 0; i < data.posts.length; i++) {
-                    var p = data.posts[i];
-                    var isAuthor = (parseInt(localStorage.getItem('toni_user_id')) === p.user_id);
-                    
+                data.posts.forEach(p => {
+                    var isAuthor = (myUserId === p.user_id);
                     var authorBtns = isAuthor ? `
                         <div style="display:flex; gap:5px; margin-top:10px; justify-content:flex-end;">
-                            <button onclick="alert('Редактирование скоро!')" style="padding:5px 10px; background:#ffc107; color:#000; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
+                            <button onclick="alert('Скоро!')" style="padding:5px 10px; background:#ffc107; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
                             <button onclick="deletePost(${p.id})" style="padding:5px 10px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Удалить</button>
                         </div>
                     ` : '';
-
                     postDiv.innerHTML += `<div class="post-card">
                         <div class="post-header" onclick="openProfile(${p.user_id})">
                             <div class="post-avatar">${p.avatar}</div>
@@ -257,12 +239,13 @@
                         </div>
                         ${authorBtns}
                     </div>`;
-                }
-
-      function openProfile(userId) {
-            window.location.href = '/view_profile/' + userId;
+                });
+            }).catch(err => console.error("Ошибка загрузки:", err));
         }
 
+        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+        function openProfile(userId) { window.location.href = '/view_profile/' + userId; }
+        function writeToUser(userId) { localStorage.setItem('toni_open_chat_with', userId); window.location.href = '/users'; }
         function showCreatePost() { document.getElementById('post-modal').style.display = 'flex'; }
         function showCreateAnketa() { document.getElementById('anketa-modal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -270,24 +253,37 @@
         function createPost() {
             var text = document.getElementById('post-text').value;
             fetch('/api/create_post', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({user_id: myUserId, text: text})
             }).then(() => { closeModal('post-modal'); loadMainFeed(); });
         }
 
-      function createAnketa() {
+        function createAnketa() {
             var theme = document.getElementById('anketa-theme').value;
             var desc = document.getElementById('anketa-desc').value;
-            var img = document.getElementById('anketa-image').value; // Получаем ссылку
-
+            var img = document.getElementById('anketa-image').value;
             fetch('/api/create_anketa', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({user_id: myUserId, theme: theme, description: desc, image_url: img})
             }).then(() => { closeModal('anketa-modal'); loadMainFeed(); });
         }
-        // Проверка уведомлений на главной
+
+        function deleteAnketa(id) {
+            if (!confirm("Удалить?")) return;
+            fetch('/api/delete_anketa', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id, user_id: myUserId})
+            }).then(res => res.json()).then(data => { if(!data.error) loadMainFeed(); });
+        }
+
+        function deletePost(id) {
+            if (!confirm("Удалить?")) return;
+            fetch('/api/delete_post', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id, user_id: myUserId})
+            }).then(res => res.json()).then(data => { if(!data.error) loadMainFeed(); });
+        }
+
         function checkMainNotifications() {
             if (!myUserId) return;
             fetch('/api/chats/' + myUserId)
@@ -299,40 +295,7 @@
             });
         }
 
-            function writeToUser(userId) {
-            // Сохраняем ID того, кому хотим написать, чтобы мессенджер сразу открыл его
-            localStorage.setItem('toni_open_chat_with', userId);
-            window.location.href = '/users'; // Переходим в мессенджер
-        }
-
-        function deleteAnketa(id) {
-            if (!confirm("Удалить эту анкету?")) return;
-            var myId = localStorage.getItem('toni_user_id');
-            
-            fetch('/api/delete_anketa', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: id, user_id: myId})
-            }).then(res => res.json()).then(data => {
-                if (data.error) alert(data.error);
-                else loadMainFeed(); // Перезагружаем ленту
-            });
-        }
-
-        function deletePost(id) {
-            if (!confirm("Удалить этот пост?")) return;
-            var myId = localStorage.getItem('toni_user_id');
-            
-            fetch('/api/delete_post', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: id, user_id: myId})
-            }).then(res => res.json()).then(data => {
-                if (data.error) alert(data.error);
-                else loadMainFeed();
-            });
-        }
-
+        // --- ЗАПУСК ---
         window.onload = function() {
             loadMainFeed();
             if (myUserId) {
@@ -340,6 +303,6 @@
                 setInterval(checkMainNotifications, 3000);
             }
         };
-                </script>
+    </script>
 </body>
 </html>
