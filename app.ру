@@ -507,5 +507,25 @@ def delete_post():
         return jsonify({'status': 'ok'})
     return jsonify({'error': 'Нет прав'})
 
+@app.route('/api/user_profile/<int:user_id>', methods=['GET'])
+def get_user_profile(user_id):
+    u = db.session.get(User, user_id)
+    if not u:
+        return jsonify({'error': 'Не найден'})
+    
+    # Его посты
+    posts = Post.query.filter_by(user_id=user_id).all()
+    post_list = [{'id': p.id, 'text': p.text} for p in posts]
+    
+    # Его анкеты
+    anketas = Anketa.query.filter_by(user_id=user_id).all()
+    anketa_list = [{'id': a.id, 'theme': a.theme, 'desc': a.description} for a in anketas]
+
+    return jsonify({
+        'id': u.id, 'name': u.name, 'username': u.username, 
+        'avatar': u.avatar, 'bio': u.bio, 'subs': u.subscribers,
+        'posts': post_list, 'anketas': anketa_list
+    })
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
