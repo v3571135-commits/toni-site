@@ -130,6 +130,37 @@
     <script>
         var myUserId = parseInt(localStorage.getItem('toni_user_id'));
 
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="message user-msg" style="text-align: right; color: #6c757d; margin-bottom: 5px;">Ты: ${text}</div>`;
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            chatBox.innerHTML += `<div class="message toni-msg" id="loading" style="color: #007bff; margin-bottom: 5px;">Тони: <i>думает...</i></div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text})
+                });
+                const data = await response.json();
+                document.getElementById("loading").remove();
+                
+                // Выводим ответ (защита от HTML)
+                let safeAnswer = data.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                chatBox.innerHTML += `<div class="message toni-msg" style="color: #007bff; margin-bottom: 5px;">Тони: ${safeAnswer}</div>`;
+            } catch (e) {
+                document.getElementById("loading").remove();
+                chatBox.innerHTML += `<div class="message toni-msg" style="color: red; margin-bottom: 5px;">Тони: Ошибка сети</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
         // Загрузка главной страницы
         function loadMainFeed() {
             fetch('/api/main_feed')
