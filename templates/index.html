@@ -51,9 +51,13 @@
     </style>
 </head>
 <body>
-    <div class="sidebar"><a href="/profile">👤 Профиль</a>
+    <div class="sidebar">
+        <a href="/profile">👤 Профиль</a>
         <a href="/users">💬 Мои чаты <span id="main-unread-badge" style="display: none; position: absolute; top: 5px; right: 10px; width: 10px; height: 10px; background: red; border-radius: 50%;"></span></a>
         <a href="/users">🧑‍🤝‍🧑 Другие пользователи</a>
+        <a href="/settings">⚙️ Настройки</a>
+        <a href="/history">📖 История</a>
+        <a href="/reviews">⭐ Отзывы</a>
         <a href="#" onclick="alert('Раздел скоро появится!')">🎁 Подарки</a>
         <a href="#" onclick="alert('Раздел скоро появится!')">💰 Кошелек</a>
         <a href="#" onclick="alert('Раздел скоро появится!')">🛒 Ларёк Тони</a>
@@ -180,27 +184,28 @@
                     </div>`;
                 });
 
-                // Анкеты
+             // Анкеты
                 var ankDiv = document.getElementById('anketas-list');
                 ankDiv.innerHTML = '';
-                data.anketas.forEach(a => {
-                   data.anketas.forEach(a => {
-                        ankDiv.innerHTML += `<div class="anketa-card">
-                            <div class="anketa-header" onclick="openProfile(${a.user_id})">
-                                <div class="anketa-avatar">${a.avatar}</div>
-                                <div class="anketa-theme">${a.author}</div>
-                            </div>
-                            <div style="font-weight:bold; margin-bottom:5px;">${a.theme}</div>
-                            <div class="anketa-desc" style="flex:1;">${a.desc}</div>
-                            
-                            <!-- НОВЫЕ КНОПКИ -->
-                            <div style="display:flex; gap:10px; margin-top:15px;">
-                                <button onclick="writeToUser(${a.user_id})" style="flex:1; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">✉️ Написать</button>
-                                <button onclick="alert('Отправка фото скоро появится!')" style="padding:8px 12px; background:#e9ecef; border:none; border-radius:5px; cursor:pointer; font-size:16px;">📷</button>
-                            </div>
-                        </div>`;
-                    });
-
+                if (data.anketas.length === 0) {
+                    ankDiv.innerHTML = '<div style="padding: 20px; color: #888;">Анкет пока нет. Создай первую!</div>';
+                } else {
+                    for (var i = 0; i < data.anketas.length; i++) {
+                        var a = data.anketas[i];
+                        ankDiv.innerHTML += '<div class="anketa-card">' +
+                            '<div class="anketa-header" onclick="openProfile(' + a.user_id + ')">' +
+                                '<div class="anketa-avatar">' + a.avatar + '</div>' +
+                                '<div class="anketa-theme">' + a.author + '</div>' +
+                            '</div>' +
+                            '<div style="font-weight:bold; margin-bottom:5px;">' + a.theme + '</div>' +
+                            '<div class="anketa-desc" style="flex:1;">' + a.desc + '</div>' +
+                            '<div style="display:flex; gap:10px; margin-top:15px;">' +
+                                '<button onclick="writeToUser(' + a.user_id + ')" style="flex:1; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">✉️ Написать</button>' +
+                                '<button onclick="alert(\'Скоро!\')" style="padding:8px 12px; background:#e9ecef; border:none; border-radius:5px; cursor:pointer; font-size:16px;">📷</button>' +
+                            '</div>' +
+                        '</div>';
+                    }
+                }
 
                 // Посты
                 var postDiv = document.getElementById('posts-list');
