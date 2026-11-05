@@ -22,7 +22,17 @@
         .top-name { font-weight: bold; color: #333; }
 
           /* Делаем анкеты видимыми (добавляем минимальную высоту) */
-        .anketa-container { display: flex; gap: 15px; width: 100%; max-width: 800px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; min-height: 150px; align-items: stretch; }
+       .anketa-card { 
+            min-width: 250px; 
+            background: #fff; 
+            border: 1px solid #007bff; 
+            border-radius: 10px; 
+            padding: 15px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; /* Прижимает кнопки к низу */
+        }
         .anketa-card { min-width: 220px; background: #fff; border: 1px solid #007bff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column;}
         .anketa-card { min-width: 200px; background: #fff; border: 1px solid #007bff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .anketa-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
@@ -184,7 +194,7 @@
                     </div>`;
                 });
 
-             // Анкеты
+            // Анкеты
                 var ankDiv = document.getElementById('anketas-list');
                 ankDiv.innerHTML = '';
                 if (data.anketas.length === 0) {
@@ -192,17 +202,27 @@
                 } else {
                     for (var i = 0; i < data.anketas.length; i++) {
                         var a = data.anketas[i];
+                        
+                        // Проверяем, является ли текущий пользователь автором этой анкеты
+                        var isAuthor = (parseInt(localStorage.getItem('toni_user_id')) === a.user_id);
+                        
+                        // Кнопки для автора (редактировать/удалить)
+                        var authorBtns = isAuthor ? `
+                            <div style="display:flex; gap:5px; margin-top:10px;">
+                                <button onclick="alert('Редактирование скоро!')" style="flex:1; padding:5px; background:#ffc107; color:#000; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
+                                <button onclick="deleteAnketa(${a.id})" style="flex:1; padding:5px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Удалить</button>
+                            </div>
+                        ` : '';
+
                         ankDiv.innerHTML += '<div class="anketa-card">' +
                             '<div class="anketa-header" onclick="openProfile(' + a.user_id + ')">' +
                                 '<div class="anketa-avatar">' + a.avatar + '</div>' +
                                 '<div class="anketa-theme">' + a.author + '</div>' +
                             '</div>' +
                             '<div style="font-weight:bold; margin-bottom:5px;">' + a.theme + '</div>' +
-                            '<div class="anketa-desc" style="flex:1;">' + a.desc + '</div>' +
-                            '<div style="display:flex; gap:10px; margin-top:15px;">' +
-                                '<button onclick="writeToUser(' + a.user_id + ')" style="flex:1; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">✉️ Написать</button>' +
-                                '<button onclick="alert(\'Скоро!\')" style="padding:8px 12px; background:#e9ecef; border:none; border-radius:5px; cursor:pointer; font-size:16px;">📷</button>' +
-                            '</div>' +
+                            '<div class="anketa-desc" style="flex:1; margin-bottom:10px;">' + a.desc + '</div>' +
+                            '<button onclick="writeToUser(' + a.user_id + ')" style="width:100%; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">✉️ Написать</button>' +
+                            authorBtns +
                         '</div>';
                     }
                 }
