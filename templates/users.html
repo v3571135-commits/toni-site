@@ -222,9 +222,25 @@
             });
         }
 
-        window.onload = function() {
+     window.onload = function() {
             loadChatList();
-            setInterval(loadChatList, 3000); // Обновляем список чатов и проверяем новые сообщения каждые 3 сек
+            setInterval(loadChatList, 3000); 
+
+            // Проверяем, не перешли ли мы сюда с кнопки "Написать"
+            var openChatWith = localStorage.getItem('toni_open_chat_with');
+            if (openChatWith) {
+                var targetId = parseInt(openChatWith);
+                localStorage.removeItem('toni_open_chat_with'); // Удаляем, чтобы не открывалось каждый раз
+                
+                // Нам нужно узнать имя и аватарку этого пользователя, чтобы красиво открыть чат
+                fetch('/api/get_user/' + targetId) // (Убедись, что этот маршрут есть в app.py, он был в самом первом коде)
+                .then(res => res.json())
+                .then(user => {
+                    if(user && !user.error) {
+                        openChat(user.id, user.name, user.avatar);
+                    }
+                });
+            }
         };
     </script>
 </body>
