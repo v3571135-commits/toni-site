@@ -259,6 +259,12 @@
             });
         }
 
+            function writeToUser(userId) {
+            // Сохраняем ID того, кому хотим написать, чтобы мессенджер сразу открыл его
+            localStorage.setItem('toni_open_chat_with', userId);
+            window.location.href = '/users'; // Переходим в мессенджер
+        }
+            
         window.onload = function() {
             loadMainFeed();
             if (myUserId) {
