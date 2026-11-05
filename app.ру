@@ -405,6 +405,9 @@ def get_chats(my_id):
             })
     return jsonify(result)
 
+@app.route('/view_profile/<int:user_id>')
+def view_profile(user_id):
+    return render_template('view_profile.html')
 @app.route('/profile')
 def profile(): return render_template('profile.html')
 @app.route('/settings')
