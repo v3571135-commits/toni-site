@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль пользователя</title>
+    <style>
+        body { margin: 0; font-family: 'Arial', sans-serif; background-color: #f0f4f8; color: #333; display: flex; flex-direction: column; align-items: center; }
+        .container { background: #fff; width: 95%; max-width: 600px; border: 2px solid #007bff; border-radius: 10px; padding: 30px; margin-top: 30px; text-align: center; }
+        .avatar { width: 100px; height: 100px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; border: 3px solid #007bff; margin: 0 auto 15px; }
+        h1 { margin: 0; color: #007bff; }
+        .bio { color: #6c757d; margin: 10px 0; font-style: italic; }
+        .stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; font-weight: bold; }
+        .btn { padding: 10px 20px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; margin: 0 5px; }
+        .btn-sub { background: #007bff; color: white; }
+        .btn-msg { background: #28a745; color: white; }
+        .back { display: block; margin-top: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .section { text-align: left; margin-top: 20px; border-top: 1px solid #dee2e6; padding-top: 15px; }
+        .post { background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 3px solid #007bff;}
+    </style>
+</head>
+<body>
+    <div class="container" id="profile-data">
+        <p>Загрузка...</p>
+    </div>
+
+    <script>
+        // Получаем ID пользователя из ссылки (например, /view_profile/2)
+        var path = window.location.pathname;
+        var userId = path.split('/').pop();
+
+        fetch('/api/user_profile/' + userId)
+        .then(res => res.json())
+        .then(data => {
+            var div = document.getElementById('profile-data');
+            if(data.error) { div.innerHTML = '<h2>Пользователь не найден</h2>'; return; }
+
+            var bioHtml = data.bio ? `<div class="bio">${data.bio}</div>` : '';
+            
+            var postsHtml = '';
+            data.posts.forEach(p => {
+                postsHtml += `<div class="post">${p.text}</div>`;
+            });
+
+            var anketasHtml = '';
+            data.anketas.forEach(a => {
+                anketasHtml += `<div class="post"><b>${a.theme}</b>
+${a.desc}</div>`;
+            });
+
+            div.innerHTML = `
+                <div class="avatar">${data.avatar}</div>
+                <h1>${data.name}</h1>
+                <p style="color:#6c757d;">@${data.username}</p>
+                ${bioHtml}
+                <div class="stats">
+                    <span>${data.subs} подписчиков</span>
+                </div>
+                <button class="btn btn-sub" onclick="subscribe(${data.id})">Подписаться</button>
+                <button class="btn btn-msg" onclick="window.location.href='/users'">✉️ Написать</button>
+                
+                <div class="section">
+                    <h3>Посты</h3>
+                    ${postsHtml || '<p>Постов пока нет</p>'}
+                </div>
+                <div class="section">
+                    <h3>Анкеты</h3>
+                    ${anketasHtml || '<p>Анкет пока нет</p>'}
+                </div>
+
+                <a href="/" class="back">← На главную</a>
+            `;
+        });
+
+        function subscribe(targetId) {
+            var myId = localStorage.getItem('toni_user_id');
+            if(!myId) { alert("Сначала войди в аккаунт!"); return; }
+            
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({my_id: myId, target_id: targetId})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) alert(data.error);
+                else alert("Вы подписались!");
+            });
+        }
+    </script>
+</body>
+</html>
