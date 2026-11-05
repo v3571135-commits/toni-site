@@ -202,13 +202,10 @@
                 if (data.anketas.length === 0) {
                     ankDiv.innerHTML = '<div style="padding: 20px; color: #888;">Анкет пока нет. Создай первую!</div>';
                 } else {
-                    for (var i = 0; i < data.anketas.length; i++) {
+                  for (var i = 0; i < data.anketas.length; i++) {
                         var a = data.anketas[i];
-                        
-                        // Проверяем, является ли текущий пользователь автором этой анкеты
                         var isAuthor = (parseInt(localStorage.getItem('toni_user_id')) === a.user_id);
                         
-                        // Кнопки для автора (редактировать/удалить)
                         var authorBtns = isAuthor ? `
                             <div style="display:flex; gap:5px; margin-top:10px;">
                                 <button onclick="alert('Редактирование скоро!')" style="flex:1; padding:5px; background:#ffc107; color:#000; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
@@ -216,18 +213,21 @@
                             </div>
                         ` : '';
 
+                        // Блок с картинкой (если она есть)
+                        var imgHtml = a.image_url ? `<img src="${a.image_url}" style="width:100%; border-radius:5px; margin-bottom:10px; max-height:150px; object-fit:cover;">` : '';
+
                         ankDiv.innerHTML += '<div class="anketa-card">' +
                             '<div class="anketa-header" onclick="openProfile(' + a.user_id + ')">' +
                                 '<div class="anketa-avatar">' + a.avatar + '</div>' +
                                 '<div class="anketa-theme">' + a.author + '</div>' +
                             '</div>' +
+                            imgHtml + // <-- ВСТАВЛЯЕМ КАРТИНКУ
                             '<div style="font-weight:bold; margin-bottom:5px;">' + a.theme + '</div>' +
                             '<div class="anketa-desc" style="flex:1; margin-bottom:10px;">' + a.desc + '</div>' +
-                            '<button onclick="writeToUser(' + a.user_id + ')" style="width:100%; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">✉️ Написать</button>' +
+                            '<button onclick="writeToUser(' + a.user_id + ')" style="width:100%; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; margin-bottom:10px;">✉️ Написать</button>' +
                             authorBtns +
                         '</div>';
                     }
-                }
 
                 // Посты
                 var postDiv = document.getElementById('posts-list');
