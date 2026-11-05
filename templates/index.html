@@ -232,7 +232,20 @@
                 // Посты
                 var postDiv = document.getElementById('posts-list');
                 postDiv.innerHTML = '';
-                data.posts.forEach(p => {
+               // Посты
+                var postDiv = document.getElementById('posts-list');
+                postDiv.innerHTML = '';
+                for (var i = 0; i < data.posts.length; i++) {
+                    var p = data.posts[i];
+                    var isAuthor = (parseInt(localStorage.getItem('toni_user_id')) === p.user_id);
+                    
+                    var authorBtns = isAuthor ? `
+                        <div style="display:flex; gap:5px; margin-top:10px; justify-content:flex-end;">
+                            <button onclick="alert('Редактирование скоро!')" style="padding:5px 10px; background:#ffc107; color:#000; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Ред.</button>
+                            <button onclick="deletePost(${p.id})" style="padding:5px 10px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:12px;">Удалить</button>
+                        </div>
+                    ` : '';
+
                     postDiv.innerHTML += `<div class="post-card">
                         <div class="post-header" onclick="openProfile(${p.user_id})">
                             <div class="post-avatar">${p.avatar}</div>
@@ -242,10 +255,9 @@
                         <div class="post-actions">
                             <span>👍 0</span> <span>👎 0</span> <span>💬 Комментарии</span>
                         </div>
+                        ${authorBtns}
                     </div>`;
-                });
-            });
-        }
+                }
 
       function openProfile(userId) {
             window.location.href = '/view_profile/' + userId;
@@ -292,7 +304,35 @@
             localStorage.setItem('toni_open_chat_with', userId);
             window.location.href = '/users'; // Переходим в мессенджер
         }
+
+        function deleteAnketa(id) {
+            if (!confirm("Удалить эту анкету?")) return;
+            var myId = localStorage.getItem('toni_user_id');
             
+            fetch('/api/delete_anketa', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id, user_id: myId})
+            }).then(res => res.json()).then(data => {
+                if (data.error) alert(data.error);
+                else loadMainFeed(); // Перезагружаем ленту
+            });
+        }
+
+        function deletePost(id) {
+            if (!confirm("Удалить этот пост?")) return;
+            var myId = localStorage.getItem('toni_user_id');
+            
+            fetch('/api/delete_post', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id, user_id: myId})
+            }).then(res => res.json()).then(data => {
+                if (data.error) alert(data.error);
+                else loadMainFeed();
+            });
+        }
+
         window.onload = function() {
             loadMainFeed();
             if (myUserId) {
