@@ -136,6 +136,8 @@
             <h3>Новая анкета</h3>
             <input type="text" id="anketa-theme" placeholder="Тема (например, Поиск друзей)" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
             <textarea id="anketa-desc" placeholder="Описание"></textarea>
+             <!-- ДОБАВЛЯЕМ ПОЛЕ ДЛЯ ССЫЛКИ НА ФОТО -->
+            <input type="text" id="anketa-image" placeholder="Ссылка на фото (URL) - необязательно" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
             <div class="modal-btns">
                 <button onclick="closeModal('anketa-modal')">Отмена</button>
                 <button onclick="createAnketa()" style="background: #007bff; color: white;">Опубликовать</button>
@@ -262,16 +264,17 @@
             }).then(() => { closeModal('post-modal'); loadMainFeed(); });
         }
 
-        function createAnketa() {
+      function createAnketa() {
             var theme = document.getElementById('anketa-theme').value;
             var desc = document.getElementById('anketa-desc').value;
+            var img = document.getElementById('anketa-image').value; // Получаем ссылку
+
             fetch('/api/create_anketa', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user_id: myUserId, theme: theme, description: desc})
+                body: JSON.stringify({user_id: myUserId, theme: theme, description: desc, image_url: img})
             }).then(() => { closeModal('anketa-modal'); loadMainFeed(); });
         }
-
         // Проверка уведомлений на главной
         function checkMainNotifications() {
             if (!myUserId) return;
