@@ -502,6 +502,25 @@ def create_anketa():
     db.session.add(new_anketa)
     db.session.commit()
     return jsonify({'status': 'ok'})
+@app.route('/api/delete_anketa', methods=['POST'])
+def delete_anketa():
+    data = request.json
+    anketa = db.session.get(Anketa, data['id'])
+    if anketa and anketa.user_id == data['user_id']: # Проверяем, что удаляет автор
+        db.session.delete(anketa)
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    return jsonify({'error': 'Нет прав'})
+
+@app.route('/api/delete_post', methods=['POST'])
+def delete_post():
+    data = request.json
+    post = db.session.get(Post, data['id'])
+    if post and post.user_id == data['user_id']:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    return jsonify({'error': 'Нет прав'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
