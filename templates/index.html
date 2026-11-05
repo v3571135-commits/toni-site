@@ -184,15 +184,23 @@
                 var ankDiv = document.getElementById('anketas-list');
                 ankDiv.innerHTML = '';
                 data.anketas.forEach(a => {
-                    ankDiv.innerHTML += `<div class="anketa-card">
-                        <div class="anketa-header" onclick="openProfile(${a.user_id})">
-                            <div class="anketa-avatar">${a.avatar}</div>
-                            <div class="anketa-theme">${a.author}</div>
-                        </div>
-                        <div style="font-weight:bold; margin-bottom:5px;">${a.theme}</div>
-                        <div class="anketa-desc">${a.desc}</div>
-                    </div>`;
-                });
+                   data.anketas.forEach(a => {
+                        ankDiv.innerHTML += `<div class="anketa-card">
+                            <div class="anketa-header" onclick="openProfile(${a.user_id})">
+                                <div class="anketa-avatar">${a.avatar}</div>
+                                <div class="anketa-theme">${a.author}</div>
+                            </div>
+                            <div style="font-weight:bold; margin-bottom:5px;">${a.theme}</div>
+                            <div class="anketa-desc" style="flex:1;">${a.desc}</div>
+                            
+                            <!-- НОВЫЕ КНОПКИ -->
+                            <div style="display:flex; gap:10px; margin-top:15px;">
+                                <button onclick="writeToUser(${a.user_id})" style="flex:1; padding:8px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">✉️ Написать</button>
+                                <button onclick="alert('Отправка фото скоро появится!')" style="padding:8px 12px; background:#e9ecef; border:none; border-radius:5px; cursor:pointer; font-size:16px;">📷</button>
+                            </div>
+                        </div>`;
+                    });
+
 
                 // Посты
                 var postDiv = document.getElementById('posts-list');
